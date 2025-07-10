@@ -312,3 +312,39 @@ int OpenThisPC()
         NULL, SW_SHOWNORMAL);
 	return 0;
 }
+
+int MakeDirP(const CString& path)
+{
+    CString dir = path;
+    dir.Replace('/', '\\');
+    if (dir.IsEmpty()) return -1;
+
+    // 如果已存在则直接返回
+    if (PathFileExists(dir)) return 0;
+
+    // 递归创建父目录
+    int pos = dir.ReverseFind('\\');
+    if (pos > 2) // 跳过“C:\”
+    {
+        CString parent = dir.Left(pos);
+        if (!PathFileExists(parent))
+        {
+            if (MakeDirP(parent) != 0)
+                return -1;
+        }
+    }
+    // 创建当前目录
+    if (_tmkdir(dir) != 0 && errno != EEXIST)
+        return -1;
+    return 0;
+}
+
+// 设置目录为隐藏属性
+void SetDirectoryHidden(const CString& dirPath)
+{
+    DWORD attrs = GetFileAttributes(dirPath);
+    if (attrs == INVALID_FILE_ATTRIBUTES) return;
+    if (!(attrs & FILE_ATTRIBUTE_HIDDEN)) {
+        SetFileAttributes(dirPath, attrs | FILE_ATTRIBUTE_HIDDEN);
+    }
+}

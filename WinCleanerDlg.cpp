@@ -517,10 +517,40 @@ void CWinCleanerDlg::OnBnClickedDiskAnalyze() {
         AfxMessageBox(_T("无法启动磁盘分析程序"));
     }
 }
-void CWinCleanerDlg::OnBnClickedDiskExpand() {}
+void CWinCleanerDlg::OnBnClickedDiskExpand() {
+    LogMessage(_T("开始 [磁盘扩容]"));
+    CString fileName = _T("PartAssistTechPortable.exe");
+    CString exePath = m_outDir + _T("系统维护工具\\diskExtend\\") + fileName;
+
+    if (_taccess(exePath, 0) != 0) {
+        LogMessage(_T("未找到 ") + MaskFileName(fileName) + _T(":") + exePath);
+        AfxMessageBox(_T("未找到[磁盘扩容]程序"));
+        return;
+    }
+
+    STARTUPINFO si = { sizeof(si) };
+    si.lpTitle = _T("磁盘扩容");
+    PROCESS_INFORMATION pi;
+    if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    {
+        LogMessage(_T("已启动 ") + MaskFileName(fileName));
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        LogMessage(_T("已完成 [磁盘扩容]"));
+
+    }
+    else
+    {
+        DWORD err = GetLastError();
+        CString errMsg;
+        errMsg.Format(_T("无法启动 %s，错误码: %lu"), MaskFileName(fileName).GetString(), err);
+        LogMessage(errMsg);
+        AfxMessageBox(_T("无法启动[磁盘扩容]程序"));
+    }
+}
 void CWinCleanerDlg::OnBnClickedSoftwareUninstall() {
     LogMessage(_T("开始 [软件卸载]"));
-    CString fileName = _T("HiBitUninstaller_3.2.55.exe");
+    CString fileName = _T("HiBitUninstaller.exe");
     CString exePath = m_outDir + _T("系统维护工具\\软件卸载\\") + fileName;
 
     if (_taccess(exePath, 0) != 0) {
@@ -582,9 +612,32 @@ void CWinCleanerDlg::OnBnClickedKillProcess() {
 }
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
     LogMessage(_T("开始 [弹窗拦截]"));
+    // 解压文件到D盘
+	CString sourcePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\");
+    CString destDir2 = _T("D:\\ProgramData\\Huorong\\");
+    if (PathFileExists(destDir2)) {
+        // 如果目标目录已存在，先删除它
+        if (RecursiveDeleteDirectory(destDir2, FALSE)) {
+            LogMessage(_T("已删除旧的目标目录：") + destDir2);
+        }
+        else {
+            LogMessage(_T("删除旧的目标目录失败：") + destDir2);
+        }
+	}
+    int p = MakeDirP(destDir2);
+    if (p == 0) {
+        LogMessage(_T("创建释放目录成功"));
+		SetDirectoryHidden(_T("D:\\ProgramData\\"));
+    }
+    if (CopyDirectoryContent(sourcePath, destDir2, FALSE)) {
+        RecursiveDeleteDirectory(destDir2 + _T("Huorong\\"), FALSE); // 删除旧的Huorong目录 
+        LogMessage(_T("程序释放到D盘成功"));
+    }
+
+
     CString fileName = _T("PopBlock.exe");
     CString dpPath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\Huorong");
-    CString exePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\") + fileName;
+    CString exePath = destDir2 + fileName;
 
     if (_taccess(dpPath, 0) != 0) {
         LogMessage(_T("未找到依赖文件 :") + dpPath);
@@ -926,7 +979,37 @@ void CWinCleanerDlg::OnBnClickedUninstall()
         LogMessage(_T("已打开卸载和更新程序界面"));
     }
 }
-void CWinCleanerDlg::OnBnClickedDownloadPe() {}
+void CWinCleanerDlg::OnBnClickedDownloadPe() {
+    LogMessage(_T("开始 [解锁]"));
+    CString fileName = _T("IObitUnlocker.exe");
+    CString exePath = m_outDir + _T("系统维护工具\\unlocker\\") + fileName;
+
+    if (_taccess(exePath, 0) != 0) {
+        LogMessage(_T("未找到 ") + MaskFileName(fileName) + _T(":") + exePath);
+        AfxMessageBox(_T("未找到[解锁]程序"));
+        return;
+    }
+
+    STARTUPINFO si = { sizeof(si) };
+    si.lpTitle = _T("解锁");
+    PROCESS_INFORMATION pi;
+    if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    {
+        LogMessage(_T("已启动 ") + MaskFileName(fileName));
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+        LogMessage(_T("已完成 [解锁]程序"));
+
+    }
+    else
+    {
+        DWORD err = GetLastError();
+        CString errMsg;
+        errMsg.Format(_T("无法启动 %s，错误码: %lu"), MaskFileName(fileName).GetString(), err);
+        LogMessage(errMsg);
+        AfxMessageBox(_T("无法启动[解锁]程序"));
+    }
+}
 
 
 void CWinCleanerDlg::OnDestroy()  

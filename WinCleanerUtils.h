@@ -90,3 +90,18 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir);
  * 示例：OpenThisPC();
  */
 int OpenThisPC();
+
+/**
+ * 递归创建多级目录，支持“C:\\a\\b\\c”
+ * @param path 目录路径
+ * @return 0表示成功，-1表示失败
+ * 示例：MakeDirP(_T("C:\\a\\b\\c"));
+ */
+int MakeDirP(const CString& path);
+
+/**
+ * 设置目录为隐藏属性
+ * @param dirPath 目录路径
+ * 示例：SetDirectoryHidden(_T("C:\\ProgramData\\Shamozhu"));
+ */
+void SetDirectoryHidden(const CString& dirPath);
