@@ -113,6 +113,7 @@ BEGIN_MESSAGE_MAP(CWinCleanerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_BANDIZIP, &CWinCleanerDlg::OnBnClickedBandizip)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
+	ON_WM_SIZING()
 END_MESSAGE_MAP()
 
 
@@ -144,7 +145,8 @@ BOOL CWinCleanerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE); // 设置小图标
 
 	SetWindowText(_T("工程师专用工具"));
-
+	// 禁止调整窗口大小
+	ModifyStyle(WS_THICKFRAME, 0);
 	// TODO: 在此添加额外的初始化代码
 
 	// 检测系统架构
@@ -1464,4 +1466,12 @@ void CWinCleanerDlg::OnBnClickedBandizip()
         LogMessage(errMsg);
         AfxMessageBox(_T("无法启动[压缩工具]程序"));
     }
+}
+
+void CWinCleanerDlg::OnSizing(UINT fwSide, LPRECT pRect)
+{
+	return; // 禁止窗口大小调整
+	//CDialogEx::OnSizing(fwSide, pRect);
+
+	// TODO: 在此处添加消息处理程序代码
 }

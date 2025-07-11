@@ -61,9 +61,9 @@ BOOL CWinCleanerApp::InitInstance()
 	if (!IsAdmin()) {
 		if (!RestartAsAdmin()) {
 			// 以管理员权限重新启动成功，退出当前实例
+			AfxMessageBox(_T("无法以管理员权限重新启动应用程序。"));
 			return FALSE;  // 退出当前应用程序实例
 		} else {
-			AfxMessageBox(_T("无法以管理员权限重新启动应用程序。"));
 			return FALSE;  // 无法重新启动，退出应用程序
 		}
 	}
