@@ -9,11 +9,15 @@
 #define IDR_MAINFRAME                   128
 #define IDD_DIALOG1                     134
 #define IDD_DIALOG_CONTENT              134
+#define IDD_DIALOG_LOGIN                135
 #define IDD_DIALOG2                     136
 #define IDD_DIALOG_CLOSED               136
+#define IDR_ZIPRC1                      138
 #define IDC_GROUP_CLEAN                 1000
 #define IDC_BTN_DISK_CLEAN              1001
+#define IDC_EDIT_CARDNO                 1001
 #define IDC_BTN_BIGFILE_DELETE          1002
+#define IDC_COMBO_SERVICE               1002
 #define IDC_BTN_CACHE_CLEAN             1003
 #define IDC_BTN_WECHAT_CLEAN            1004
 #define IDC_BTN_QQ_CLEAN                1005
@@ -35,6 +39,9 @@
 #define IDC_BTN_CONTEXT_MGR             1033
 #define IDC_BTN_UNINSTALL               1034
 #define IDC_BTN_DOWNLOAD_PE             1035
+#define IDC_BTN_DOC_MIGRATION           1036
+#define IDC_BTN_SYSTEM_OPTIMIZE         1037
+#define IDC_BTN_BANDIZIP                1038
 #define IDR_ZIPRC_TOOLS                 2002
 #define IDC_BTN_SCAN                    3001
 #define IDC_BTN_CLEAN                   3002
@@ -44,9 +51,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        138
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1000
+#define _APS_NEXT_CONTROL_VALUE         1037
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -51,6 +51,9 @@
     <ClInclude Include="ClosedDlg.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="LoginDlg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WinCleaner.cpp">
@@ -80,6 +83,9 @@
     <ClCompile Include="ClosedDlg.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="LoginDlg.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="WinCleaner.rc">
@@ -96,6 +102,7 @@
     <None Include="res\系统维护工具.zip">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="res\系统激活.zip" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\WinCleaner.ico">

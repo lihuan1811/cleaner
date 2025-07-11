@@ -1,5 +1,4 @@
-﻿
-// WinCleaner.h: PROJECT_NAME 应用程序的主头文件
+﻿// WinCleaner.h: PROJECT_NAME 应用程序的主头文件
 //
 
 #pragma once
@@ -25,6 +24,8 @@ public:
 	virtual BOOL InitInstance();
 
 // 实现
+public:
+	BOOL m_bLoggedIn;  // 登录状态标记
 
 	DECLARE_MESSAGE_MAP()
 };

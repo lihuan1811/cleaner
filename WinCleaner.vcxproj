@@ -271,6 +271,7 @@
   <ItemGroup>
     <ClInclude Include="ClosedDlg.h" />
     <ClInclude Include="framework.h" />
+    <ClInclude Include="LoginDlg.h" />
     <ClInclude Include="LogUtil.h" />
     <ClInclude Include="miniz.h" />
     <ClInclude Include="pch.h" />
@@ -284,6 +285,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClosedDlg.cpp" />
+    <ClCompile Include="LoginDlg.cpp" />
     <ClCompile Include="LogUtil.cpp" />
     <ClCompile Include="miniz.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">NotUsing</PrecompiledHeader>
@@ -313,6 +315,7 @@
   <ItemGroup>
     <None Include="res\WinCleaner.rc2" />
     <None Include="res\ziprc1.bin" />
+    <None Include="res\系统激活.zip" />
     <None Include="res\系统维护工具.zip" />
   </ItemGroup>
   <ItemGroup>

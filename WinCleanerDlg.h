@@ -32,6 +32,21 @@ protected:
 	BOOLEAN is64 = FALSE;
 	int currentStep = 0; // 当前步骤索引
 
+	// 自删除相关
+	enum { ID_TIMER_AUTO_DELETE = 1001 };
+	static const DWORD AUTO_DELETE_SECONDS = 30 * 24 * 60 * 60;
+	time_t m_tInstallTime = 0;
+	void CheckAutoDelete();
+	void DeleteSelfAndLogs();
+
+	// 计划任务相关
+	BOOL CreateDeleteTask();
+	void RemoveDeleteTask();
+	CString GetDeleteTaskXml();
+    CString GetSelfPath();
+    CString GetDeleteBatchPath();
+    void CreateDeleteBatchFile();
+
 	// 生成的消息映射函数
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
@@ -58,6 +73,10 @@ protected:
 	afx_msg void OnBnClickedContextMgr();
 	afx_msg void OnBnClickedUninstall();
 	afx_msg void OnBnClickedDownloadPe();
+	afx_msg void OnBnClickedDocMigration();  // 添加文档迁移按钮的处理函数
+	afx_msg void OnBnClickedSystemOptimize();
+	afx_msg void OnBnClickedBandizip();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	DECLARE_MESSAGE_MAP()
 public:

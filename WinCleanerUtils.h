@@ -3,6 +3,14 @@
 #include <vector>
 #include <string>
 
+// 获取参数
+struct ReleaseParams {
+    UINT nResourceID;
+    CString zipPath;
+    CString outDir;
+	CString tempPath;
+};
+
 /**
  * 对文件名进行脱敏处理，保留前2和最后1个字符，其余用*代替。
  * @param fileName 原始文件名
@@ -105,3 +113,33 @@ int MakeDirP(const CString& path);
  * 示例：SetDirectoryHidden(_T("C:\\ProgramData\\Shamozhu"));
  */
 void SetDirectoryHidden(const CString& dirPath);
+
+/**
+ * 将程序资源释放到指定路径中。
+ * @param path 资源存放路径
+ * @param m_tempPath 输出的实际路径
+ * 示例：ReleaseResourcesToPath(_T("C:\\MyResource"));
+ */
+UINT ReleaseResourcesToPath(LPVOID pParam);
+
+/**
+ * 检查当前用户是否为管理员。
+ * @return TRUE表示是管理员，FALSE表示不是
+ * 示例：if (IsAdmin()) {...}
+ */
+bool IsAdmin();
+
+/**
+ * 以管理员权限重新启动当前程序。
+ * @return TRUE表示成功，FALSE表示失败
+ * 示例：if (!RestartAsAdmin()) {...}
+ */
+bool RestartAsAdmin();
+
+/**
+ * 将指定路径添加到Windows Defender的排除列表中（Unicode版本）。
+ * @param path 要添加的路径
+ * @return TRUE表示成功，FALSE表示失败
+ * 示例：AddPathToDefenderExclusion(L"C:\\MyFolder");
+ */ 
+bool AddPathToDefenderExclusion(const CString& path);
