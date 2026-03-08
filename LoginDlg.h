@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "afxwin.h"
 
 class CLoginDlg : public CDialogEx
@@ -14,14 +14,22 @@ public:
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);
     virtual BOOL OnInitDialog();
+    virtual BOOL OnEraseBkgnd(CDC* pDC);
+    virtual HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 
     DECLARE_MESSAGE_MAP()
 
-    CEdit m_editCardNo;       // ¿¨ÃÜÊäÈë¿ò
-    CComboBox m_comboService; // ¿Í·şÑ¡Ôñ¿ò
-    CButton m_btnLogin;       // µÇÂ¼°´Å¥
+    CEdit m_editCardNo;       // å¡å¯†è¾“å…¥æ¡†
+    CComboBox m_comboService; // å®¢æœé€‰æ‹©æ¡†
+    CButton m_btnLogin;       // ç™»å½•æŒ‰é’®
 
-    CFont m_font;            // ¿Ø¼ş×ÖÌå
+    CFont m_fontTitle;        // æ ‡é¢˜å­—ä½“
+    CFont m_fontLabel;        // æ ‡ç­¾å­—ä½“
+    CFont m_fontEdit;         // è¾“å…¥æ¡†å­—ä½“
+    CFont m_fontBtn;          // æŒ‰é’®å­—ä½“
+    CBrush m_bgBrush;         // èƒŒæ™¯ç”»åˆ·
+    CBrush m_editBrush;       // è¾“å…¥æ¡†ç”»åˆ·
+
 public:
     afx_msg void OnEnChangeEditCardno();
     afx_msg void OnBnClickedOk();

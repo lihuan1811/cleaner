@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "WinCleaner.h"
 #include "LoginDlg.h"
 #include "afxdialogex.h"
@@ -26,62 +26,245 @@ void CLoginDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CLoginDlg, CDialogEx)
     ON_EN_CHANGE(IDC_EDIT_CARDNO, &CLoginDlg::OnEnChangeEditCardno)
     ON_BN_CLICKED(IDOK, &CLoginDlg::OnBnClickedOk)
+    ON_WM_ERASEBKGND()
+    ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 BOOL CLoginDlg::OnInitDialog()
 {
     CDialogEx::OnInitDialog();
 
-    // ÉèÖÃ´°¿Ú±êÌâ
-    SetWindowText(_T("¹¤³ÌÊ¦×¨ÓÃ¹¤¾ßµÇÂ¼ÏµÍ³"));
+    // ========== çª—å£è®¾ç½® ==========
+    SetWindowText(_T("å·¥ç¨‹å¸ˆä¸“ç”¨å·¥å…·ç™»å½•ç³»ç»Ÿ"));
 
-    // Ìí¼Ó¿Í·şÑ¡Ïî
-	CString strService = _T("CÅÌÇåÀí£¬ÏµÍ³ÓÅ»¯£¬À©Èİ·ÖÇø£¬Êı¾İÇ¨ÒÆ£¬DLLĞŞ¸´£¬×ÀÃæÃÀ»¯£¬ÇåÀíÁ÷Ã¥Èí¼ş£¬ÖØ×°ÏµÍ³£¬ÇåÀíÆäËûÅÌ");
-	// °´¶ººÅ·Ö¸î×Ö·û´®
-	CStringArray serviceArray;
-	int nStart = 0;
-	int nEnd = strService.Find(_T("£¬"));
-	while (nEnd != -1)
-	{
-		CString strItem = strService.Mid(nStart, nEnd - nStart);
-		serviceArray.Add(strItem.Trim());
-		nStart = nEnd + 1;
-		nEnd = strService.Find(_T("£¬"), nStart);
-	}
+    // è°ƒæ•´çª—å£å¤§å°ï¼ˆæ›´å¤§æ›´èˆ’é€‚ï¼‰
+    CRect dlgRect;
+    GetWindowRect(&dlgRect);
+    int newWidth = 420;
+    int newHeight = 280;
+    int screenW = GetSystemMetrics(SM_CXSCREEN);
+    int screenH = GetSystemMetrics(SM_CYSCREEN);
+    int posX = (screenW - newWidth) / 2;
+    int posY = (screenH - newHeight) / 2;
+    MoveWindow(posX, posY, newWidth, newHeight);
 
-    for (int i = 0; i < serviceArray.GetCount(); i++)
+    // ========== åˆ›å»ºå­—ä½“ ==========
+    HDC hDC = ::GetDC(m_hWnd);
+    int dpi = GetDeviceCaps(hDC, LOGPIXELSY);
+    ::ReleaseDC(m_hWnd, hDC);
+
+    // æ ‡é¢˜å­—ä½“ - ç²—ä½“å¤§å­—
+    LOGFONT lfTitle = { 0 };
+    lfTitle.lfHeight = -MulDiv(16, dpi, 72);
+    lfTitle.lfWeight = FW_BOLD;
+    _tcscpy_s(lfTitle.lfFaceName, _T("Microsoft YaHei UI"));
+    m_fontTitle.CreateFontIndirect(&lfTitle);
+
+    // æ ‡ç­¾å­—ä½“
+    LOGFONT lfLabel = { 0 };
+    lfLabel.lfHeight = -MulDiv(10, dpi, 72);
+    lfLabel.lfWeight = FW_NORMAL;
+    _tcscpy_s(lfLabel.lfFaceName, _T("Microsoft YaHei UI"));
+    m_fontLabel.CreateFontIndirect(&lfLabel);
+
+    // è¾“å…¥æ¡†å­—ä½“
+    LOGFONT lfEdit = { 0 };
+    lfEdit.lfHeight = -MulDiv(11, dpi, 72);
+    lfEdit.lfWeight = FW_NORMAL;
+    _tcscpy_s(lfEdit.lfFaceName, _T("Microsoft YaHei UI"));
+    m_fontEdit.CreateFontIndirect(&lfEdit);
+
+    // æŒ‰é’®å­—ä½“
+    LOGFONT lfBtn = { 0 };
+    lfBtn.lfHeight = -MulDiv(12, dpi, 72);
+    lfBtn.lfWeight = FW_BOLD;
+    _tcscpy_s(lfBtn.lfFaceName, _T("Microsoft YaHei UI"));
+    m_fontBtn.CreateFontIndirect(&lfBtn);
+
+    // ========== èƒŒæ™¯ç”»åˆ· ==========
+    m_bgBrush.CreateSolidBrush(RGB(245, 247, 250));     // æµ…ç°è“èƒŒæ™¯
+    m_editBrush.CreateSolidBrush(RGB(255, 255, 255));    // ç™½è‰²è¾“å…¥æ¡†èƒŒæ™¯
+
+    // ========== è·å–å®¢æˆ·åŒºåŸŸå¹¶å¸ƒå±€æ§ä»¶ ==========
+    CRect clientRect;
+    GetClientRect(&clientRect);
+    int cx = clientRect.Width();
+    int margin = 30;
+    int inputW = cx - margin * 2;
+    int inputH = 28;
+    int labelH = 18;
+    int startY = 70;  // æ ‡é¢˜ä¸‹æ–¹å¼€å§‹
+
+    // è®¾ç½®æ ‡ç­¾ä½ç½®å’Œå­—ä½“
+    CWnd* pLabelCard = GetDlgItem(IDC_STATIC);
+    // æˆ‘ä»¬éœ€è¦ç”¨ä¸¤ä¸ªé™æ€æ–‡æœ¬ï¼Œä½†rcåªå®šä¹‰äº†ä¸€å¥—
+    // é€šè¿‡éå†å­çª—å£æ¥è®¾ç½®å­—ä½“
+    CWnd* pChild = GetWindow(GW_CHILD);
+    while (pChild)
     {
-        m_comboService.AddString(serviceArray[i]);
-	}
-    
+        TCHAR className[64] = { 0 };
+        GetClassName(pChild->m_hWnd, className, 64);
+        if (_tcsicmp(className, _T("Static")) == 0)
+        {
+            pChild->SetFont(&m_fontLabel);
+        }
+        pChild = pChild->GetNextWindow();
+    }
+
+    // é‡æ–°å¸ƒå±€ - å¡å¯†æ ‡ç­¾
+    CWnd* pStatic1 = GetDlgItem(IDC_STATIC);
+
+    // é‡æ–°å®šä½æ§ä»¶
+    int labelY = startY;
+    // æŸ¥æ‰¾æ‰€æœ‰é™æ€æ–‡æœ¬å¹¶é‡æ–°å®šä½
+    int ctrlIndex = 0;
+    pChild = GetWindow(GW_CHILD);
+    while (pChild)
+    {
+        TCHAR className[64] = { 0 };
+        GetClassName(pChild->m_hWnd, className, 64);
+        if (_tcsicmp(className, _T("Static")) == 0)
+        {
+            if (ctrlIndex == 0)
+            {
+                // "ç™»å½•å¡å¯†:" æ ‡ç­¾
+                pChild->MoveWindow(margin, startY, 70, labelH);
+                pChild->SetWindowText(_T("ç™»å½•å¡å¯†"));
+            }
+            else if (ctrlIndex == 1)
+            {
+                // "å®¢æˆ·æœåŠ¡:" æ ‡ç­¾
+                pChild->MoveWindow(margin, startY + inputH + 20, 70, labelH);
+                pChild->SetWindowText(_T("æœåŠ¡ç±»å‹"));
+            }
+            ctrlIndex++;
+        }
+        pChild = pChild->GetNextWindow();
+    }
+
+    // å¡å¯†è¾“å…¥æ¡†
+    m_editCardNo.MoveWindow(margin + 75, startY - 4, inputW - 75, inputH);
+    m_editCardNo.SetFont(&m_fontEdit);
+
+    // æœåŠ¡é€‰æ‹©æ¡†
+    int comboY = startY + inputH + 16;
+    m_comboService.MoveWindow(margin + 75, comboY, inputW - 75, 200);
+    m_comboService.SetFont(&m_fontEdit);
+
+    // ç™»å½•æŒ‰é’® - å…¨å®½å¤§æŒ‰é’®
+    int btnY = comboY + inputH + 25;
+    int btnH = 38;
+    m_btnLogin.MoveWindow(margin, btnY, inputW, btnH);
+    m_btnLogin.SetFont(&m_fontBtn);
+    m_btnLogin.SetWindowText(_T("ç™»  å½•"));
+
+    // ========== æ·»åŠ å®¢æœé€‰é¡¹ ==========
+    m_comboService.ResetContent();
+    CString strService = _T("Cç›˜æ¸…ç†ï¼Œç³»ç»Ÿä¼˜åŒ–ï¼Œæ‰©å®¹åˆ†åŒºï¼Œæ•°æ®è¿ç§»ï¼ŒDLLä¿®å¤ï¼Œæ¡Œé¢ç¾åŒ–ï¼Œæ¸…ç†æµæ°“è½¯ä»¶ï¼Œé‡è£…ç³»ç»Ÿï¼Œæ¸…ç†å…¶ä»–ç›˜");
+    int nStart = 0;
+    int nEnd = strService.Find(_T("ï¼Œ"));
+    while (nEnd != -1)
+    {
+        CString strItem = strService.Mid(nStart, nEnd - nStart);
+        m_comboService.AddString(strItem.Trim());
+        nStart = nEnd + 1;
+        nEnd = strService.Find(_T("ï¼Œ"), nStart);
+    }
+    // æ·»åŠ æœ€åä¸€é¡¹
+    CString lastItem = strService.Mid(nStart);
+    if (!lastItem.IsEmpty())
+        m_comboService.AddString(lastItem.Trim());
+
     m_comboService.SetCurSel(0);
+
+    // ç»™è¾“å…¥æ¡†è®¾ç½®æç¤ºæ–‡å­—
+    m_editCardNo.SetCueBanner(_T("è¯·è¾“å…¥ç™»å½•å¡å¯†"));
 
     return TRUE;
 }
+
+BOOL CLoginDlg::OnEraseBkgnd(CDC* pDC)
+{
+    CRect rect;
+    GetClientRect(&rect);
+
+    // ç»˜åˆ¶æ¸å˜èƒŒæ™¯ï¼ˆä»æµ…ç°è“åˆ°ç™½è‰²ï¼‰
+    for (int y = 0; y < rect.Height(); y++)
+    {
+        int r = 240 + (int)((255 - 240) * y / (double)rect.Height());
+        int g = 244 + (int)((255 - 244) * y / (double)rect.Height());
+        int b = 248 + (int)((255 - 248) * y / (double)rect.Height());
+        CPen pen(PS_SOLID, 1, RGB(r, g, b));
+        CPen* pOldPen = pDC->SelectObject(&pen);
+        pDC->MoveTo(0, y);
+        pDC->LineTo(rect.Width(), y);
+        pDC->SelectObject(pOldPen);
+    }
+
+    // ç»˜åˆ¶é¡¶éƒ¨æ·±è‰²æ ‡é¢˜æ åŒºåŸŸ
+    CRect titleRect(0, 0, rect.Width(), 55);
+    CBrush titleBrush(RGB(47, 84, 150));   // æ·±è“è‰²
+    pDC->FillRect(&titleRect, &titleBrush);
+
+    // ç»˜åˆ¶æ ‡é¢˜æ–‡å­—
+    pDC->SetBkMode(TRANSPARENT);
+    pDC->SetTextColor(RGB(255, 255, 255));
+    CFont* pOldFont = pDC->SelectObject(&m_fontTitle);
+    CRect textRect(20, 12, rect.Width() - 20, 50);
+    pDC->DrawText(_T("ğŸ”§ å·¥ç¨‹å¸ˆä¸“ç”¨å·¥å…·"), &textRect, DT_LEFT | DT_VCENTER | DT_SINGLELINE);
+    pDC->SelectObject(pOldFont);
+
+    // ç»˜åˆ¶åº•éƒ¨åˆ†éš”çº¿
+    CPen linePen(PS_SOLID, 1, RGB(220, 224, 230));
+    CPen* pOldPen2 = pDC->SelectObject(&linePen);
+    int lineY = rect.Height() - 1;
+    pDC->MoveTo(0, lineY);
+    pDC->LineTo(rect.Width(), lineY);
+    pDC->SelectObject(pOldPen2);
+
+    return TRUE;
+}
+
+HBRUSH CLoginDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+    HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+    if (nCtlColor == CTLCOLOR_STATIC)
+    {
+        // é™æ€æ–‡æœ¬æ§ä»¶ - é€æ˜èƒŒæ™¯ + æ·±ç°è‰²æ–‡å­—
+        pDC->SetBkMode(TRANSPARENT);
+        pDC->SetTextColor(RGB(51, 65, 85));
+        return (HBRUSH)GetStockObject(NULL_BRUSH);
+    }
+
+    if (nCtlColor == CTLCOLOR_EDIT)
+    {
+        // è¾“å…¥æ¡† - ç™½è‰²èƒŒæ™¯
+        pDC->SetBkColor(RGB(255, 255, 255));
+        pDC->SetTextColor(RGB(30, 30, 30));
+        return (HBRUSH)m_editBrush.GetSafeHandle();
+    }
+
+    return hbr;
+}
+
 void CLoginDlg::OnEnChangeEditCardno()
 {
-
 }
 
 void CLoginDlg::OnBnClickedOk()
 {
-    // »ñÈ¡m_editCardNoÖµ
     CString cardNo;
     m_editCardNo.GetWindowText(cardNo);
-    // ¿ÉÒÔÔÚÕâÀïÌí¼ÓÆäËûÑéÖ¤Âß¼­£¬±ÈÈç¸ñÊ½¼ì²éµÈ
-    // ÀıÈç£¬Èç¹û¿¨ÃÜ±ØĞëÊÇÊı×Ö£¬¿ÉÒÔÊ¹ÓÃÕıÔò±í´ïÊ½»òÆäËû·½·¨ÑéÖ¤
-    // ÕâÀï½öÎªÊ¾Àı£¬Êµ¼ÊÑéÖ¤Âß¼­¿ÉÄÜ¸ü¸´ÔÓ
-    //LogMessage(_T("¿¨ÃÜÊäÈë¿òÄÚÈİÒÑ¸ü¸Ä: ") + cardNo);
-    // Ğ£Ñé¿¨ÃÜÊÇ·ñÕıÈ·£¬Óë ×ÖÌå´®½øĞĞ±È½Ï
-    if (cardNo == _T("SMZ@2025#")) // ¼ÙÉèÕıÈ·µÄ¿¨ÃÜÊÇ"admin@2025#SMZ"
+
+    if (cardNo == _T("SMZ@2025#"))
     {
-        LogMessage(_T("µÇÂ¼ÑéÖ¤³É¹¦£¡"));
+        LogMessage(_T("ç™»å½•éªŒè¯æˆåŠŸï¼"));
         CDialogEx::OnOK();
     }
     else
     {
-        LogMessage(_T("µÇÂ¼ÑéÖ¤Ê§°Ü£¬Çë¼ì²éÊäÈë£¡"));
-		AfxMessageBox(_T("µÇÂ¼ÑéÖ¤Ê§°Ü£¬Çë¼ì²éÊäÈë£¡"), MB_ICONERROR);
+        LogMessage(_T("ç™»å½•éªŒè¯å¤±è´¥ï¼Œè¯·æ£€æŸ¥è¾“å…¥ï¼"));
+        AfxMessageBox(_T("ç™»å½•éªŒè¯å¤±è´¥ï¼Œè¯·æ£€æŸ¥è¾“å…¥ï¼"), MB_ICONERROR);
     }
-
 }

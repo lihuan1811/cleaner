@@ -1,4 +1,4 @@
-#include "pch.h"
+ï»¿#include "pch.h"
 #include "WinCleanerUtils.h"
 #include "LogUtil.h"
 #include "RegistryUtil.h"
@@ -50,12 +50,12 @@ BOOL CopyDirectoryContent(const CString& srcPath, const CString& destPath, BOOL 
 {
 	try {
 		if (!PathFileExists(srcPath)) {
-			LogMessage(_T("Ô´Ä¿Â¼²»´æÔÚ£º") + srcPath);
+			LogMessage(_T("æºç›®å½•ä¸å­˜åœ¨ï¼š") + srcPath);
 			return FALSE;
 		}
 		if (!PathFileExists(destPath)) {
 			if (!CreateDirectory(destPath, NULL)) {
-				LogMessage(_T("ÎŞ·¨´´½¨Ä¿±êÄ¿Â¼£º") + destPath);
+				LogMessage(_T("æ— æ³•åˆ›å»ºç›®æ ‡ç›®å½•ï¼š") + destPath);
 				return FALSE;
 			}
 		}
@@ -67,7 +67,7 @@ BOOL CopyDirectoryContent(const CString& srcPath, const CString& destPath, BOOL 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = FindFirstFile(searchPath, &findData);
 		if (hFind == INVALID_HANDLE_VALUE) {
-			LogMessage(_T("ÎŞ·¨·ÃÎÊÄ¿Â¼£º") + srcPath);
+			LogMessage(_T("æ— æ³•è®¿é—®ç›®å½•ï¼š") + srcPath);
 			return FALSE;
 		}
 		BOOL success = TRUE;
@@ -83,7 +83,7 @@ BOOL CopyDirectoryContent(const CString& srcPath, const CString& destPath, BOOL 
 			srcFile += findData.cFileName;
 			destFile += findData.cFileName;
 			if (showProgress) {
-				LogMessage(_T("ÕıÔÚ¸´ÖÆ£º") + srcFile);
+				LogMessage(_T("æ­£åœ¨å¤åˆ¶ï¼š") + srcFile);
 			}
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
 				if (!CopyDirectoryContent(srcFile, destFile, showProgress)) {
@@ -92,7 +92,7 @@ BOOL CopyDirectoryContent(const CString& srcPath, const CString& destPath, BOOL 
 			}
 			else {
 				if (!CopyFile(srcFile, destFile, FALSE)) {
-					LogMessage(_T("¸´ÖÆÎÄ¼şÊ§°Ü£º") + srcFile);
+					LogMessage(_T("å¤åˆ¶æ–‡ä»¶å¤±è´¥ï¼š") + srcFile);
 					success = FALSE;
 				}
 			}
@@ -101,7 +101,7 @@ BOOL CopyDirectoryContent(const CString& srcPath, const CString& destPath, BOOL 
 		return success;
 	}
 	catch (const std::exception& e) {
-		LogMessage(_T("¸´ÖÆÄ¿Â¼Ê±·¢ÉúÒì³££º") + srcPath + _T(" ´íÎó£º") + CString(e.what()));
+		LogMessage(_T("å¤åˆ¶ç›®å½•æ—¶å‘ç”Ÿå¼‚å¸¸ï¼š") + srcPath + _T(" é”™è¯¯ï¼š") + CString(e.what()));
 		return FALSE;
 	}
 }
@@ -118,26 +118,26 @@ BOOL CopyDirectories(const std::vector<std::pair<CString, CString>>& dirPairs, B
 			const CString& destPath = pair.second;
 			if (srcPath.IsEmpty() || destPath.IsEmpty()) continue;
 			CString progressMsg;
-			progressMsg.Format(_T("ÕıÔÚ´¦Àí %d/%d: %s -> %s"),
+			progressMsg.Format(_T("æ­£åœ¨å¤„ç† %d/%d: %s -> %s"),
 				current, total, srcPath, destPath);
 			if (showProgress) {
 				LogMessage(progressMsg);
 			}
 			if (!PathFileExists(srcPath)) {
-				LogMessage(_T("Ô´Ä¿Â¼²»´æÔÚ: ") + srcPath);
+				LogMessage(_T("æºç›®å½•ä¸å­˜åœ¨: ") + srcPath);
 				result = FALSE;
 				continue;
 			}
 			if (!CopyDirectoryContent(srcPath, destPath, showProgress)) {
-				LogMessage(_T("¸´ÖÆÄ¿Â¼Ê§°Ü: ") + srcPath + _T(" -> ") + destPath);
+				LogMessage(_T("å¤åˆ¶ç›®å½•å¤±è´¥: ") + srcPath + _T(" -> ") + destPath);
 				result = FALSE;
 			}
 			else {
-				LogMessage(_T("³É¹¦¸´ÖÆÄ¿Â¼: ") + srcPath + _T(" -> ") + destPath);
+				LogMessage(_T("æˆåŠŸå¤åˆ¶ç›®å½•: ") + srcPath + _T(" -> ") + destPath);
 			}
 		}
 		catch (const std::exception& e) {
-			LogMessage(_T("¸´ÖÆÄ¿Â¼Ê±·¢ÉúÒì³£: ") + pair.first + _T(" ´íÎó: ") + CString(e.what()));
+			LogMessage(_T("å¤åˆ¶ç›®å½•æ—¶å‘ç”Ÿå¼‚å¸¸: ") + pair.first + _T(" é”™è¯¯: ") + CString(e.what()));
 			result = FALSE;
 		}
 	}
@@ -195,7 +195,7 @@ BOOL RecursiveDeleteDirectory(const CString& dirPath, boolean notDb)
 			if (notDb) {
 				CString fileName = findData.cFileName;
 				if (fileName.GetLength() > 3 && fileName.Right(3).CompareNoCase(_T(".db")) == 0) {
-					LogMessage(_T("Ìø¹ıÊı¾İ¿âÎÄ¼ş£º") + fileName);
+					LogMessage(_T("è·³è¿‡æ•°æ®åº“æ–‡ä»¶ï¼š") + fileName);
 					continue;
 				}
 			}
@@ -217,7 +217,7 @@ BOOL RecursiveDeleteDirectory(const CString& dirPath, boolean notDb)
 		return TRUE;
 	}
 	catch (const std::exception& e) {
-		LogMessage(_T("É¾³ıÄ¿Â¼Ê±·¢ÉúÒì³££º") + dirPath + _T(" Òì³££º") + CString(e.what()));
+		LogMessage(_T("åˆ é™¤ç›®å½•æ—¶å‘ç”Ÿå¼‚å¸¸ï¼š") + dirPath + _T(" å¼‚å¸¸ï¼š") + CString(e.what()));
 		return FALSE;
 	}
 }
@@ -232,24 +232,24 @@ BOOL DeleteDirectories(const std::vector<CString>& dirPaths, BOOL showProgress)
 		try {
 			current++;
 			CString progressMsg;
-			progressMsg.Format(_T("ÕıÔÚ´¦Àí %d/%d: %s"), current, total, path);
+			progressMsg.Format(_T("æ­£åœ¨å¤„ç† %d/%d: %s"), current, total, path);
 			if (showProgress) {
 				LogMessage(progressMsg);
 			}
 			if (!PathFileExists(path)) {
-				LogMessage(_T("Ä¿Â¼²»´æÔÚ: ") + path);
+				LogMessage(_T("ç›®å½•ä¸å­˜åœ¨: ") + path);
 				continue;
 			}
 			if (RecursiveDeleteDirectory(path, TRUE)) {
-				LogMessage(_T("³É¹¦É¾³ıÄ¿Â¼: ") + path);
+				LogMessage(_T("æˆåŠŸåˆ é™¤ç›®å½•: ") + path);
 			}
 			else {
-				LogMessage(_T("É¾³ıÄ¿Â¼Ê§°Ü: ") + path);
+				LogMessage(_T("åˆ é™¤ç›®å½•å¤±è´¥: ") + path);
 				result = FALSE;
 			}
 		}
 		catch (const std::exception& e) {
-			LogMessage(_T("É¾³ıÄ¿Â¼Ê±·¢ÉúÒì³£: ") + path + _T(" ´íÎó: ") + CString(e.what()));
+			LogMessage(_T("åˆ é™¤ç›®å½•æ—¶å‘ç”Ÿå¼‚å¸¸: ") + path + _T(" é”™è¯¯: ") + CString(e.what()));
 			result = FALSE;
 		}
 	}
@@ -315,7 +315,7 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir)
 
 int OpenThisPC()
 {
-	// ´ò¿ª¡°´ËµçÄÔ¡±£¬¼æÈİWin7/Win10/Win11
+	// æ‰“å¼€â€œæ­¤ç”µè„‘â€ï¼Œå…¼å®¹Win7/Win10/Win11
 	ShellExecute(NULL, _T("open"), _T("explorer.exe"),
 		_T("::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"),
 		NULL, SW_SHOWNORMAL);
@@ -328,12 +328,12 @@ int MakeDirP(const CString& path)
 	dir.Replace('/', '\\');
 	if (dir.IsEmpty()) return -1;
 
-	// Èç¹ûÒÑ´æÔÚÔòÖ±½Ó·µ»Ø
+	// å¦‚æœå·²å­˜åœ¨åˆ™ç›´æ¥è¿”å›
 	if (PathFileExists(dir)) return 0;
 
-	// µİ¹é´´½¨¸¸Ä¿Â¼
+	// é€’å½’åˆ›å»ºçˆ¶ç›®å½•
 	int pos = dir.ReverseFind('\\');
-	if (pos > 2) // Ìø¹ı¡°C:\¡±
+	if (pos > 2) // è·³è¿‡â€œC:\â€
 	{
 		CString parent = dir.Left(pos);
 		if (!PathFileExists(parent))
@@ -342,13 +342,13 @@ int MakeDirP(const CString& path)
 				return -1;
 		}
 	}
-	// ´´½¨µ±Ç°Ä¿Â¼
+	// åˆ›å»ºå½“å‰ç›®å½•
 	if (_tmkdir(dir) != 0 && errno != EEXIST)
 		return -1;
 	return 0;
 }
 
-// ÉèÖÃÄ¿Â¼ÎªÒş²ØÊôĞÔ
+// è®¾ç½®ç›®å½•ä¸ºéšè—å±æ€§
 void SetDirectoryHidden(const CString& dirPath)
 {
 	DWORD attrs = GetFileAttributes(dirPath);
@@ -366,26 +366,26 @@ UINT ReleaseResourcesToPath(LPVOID pParam)
 
 		if (!PathFileExists(params->zipPath)) {
 			if (!ExtractResourceToFile(params->nResourceID, _T("ZIPRC"), params->zipPath)) {
-				LogMessage(_T("ÊÍ·Å¹¤¾ß°ü×ÊÔ´Ê§°Ü£¡"));
-				//AfxMessageBox(_T("ÊÍ·Å¹¤¾ß°ü×ÊÔ´Ê§°Ü£¡"));
+				LogMessage(_T("é‡Šæ”¾å·¥å…·åŒ…èµ„æºå¤±è´¥ï¼"));
+				//AfxMessageBox(_T("é‡Šæ”¾å·¥å…·åŒ…èµ„æºå¤±è´¥ï¼"));
 			}
 		}
-		// 2. ½âÑ¹
+		// 2. è§£å‹
 		if (!PathFileExists(params->outDir)) _tmkdir(params->outDir);
 		if (!UnzipToDir(params->zipPath, params->outDir)) {
-			LogMessage(_T("½âÑ¹¹¤¾ß°üÊ§°Ü£¡"));
-			//AfxMessageBox(_T("½âÑ¹¹¤¾ß°üÊ§°Ü£¡"));
+			LogMessage(_T("è§£å‹å·¥å…·åŒ…å¤±è´¥ï¼"));
+			//AfxMessageBox(_T("è§£å‹å·¥å…·åŒ…å¤±è´¥ï¼"));
 		}
 
-		// zipÎÄ¼ş½âÑ¹Íê³Éºó£¬¸´ÖÆµ½Ö¸¶¨Ä¿Â¼
+		// zipæ–‡ä»¶è§£å‹å®Œæˆåï¼Œå¤åˆ¶åˆ°æŒ‡å®šç›®å½•
 		RecursiveDeleteDirectory(params->zipPath, FALSE);
 
-		// ½áÊø½âÑ¹
-		LogMessage(_T("ÒÑÊÍ·ÅËùÓĞ×ÊÔ´"));
+		// ç»“æŸè§£å‹
+		LogMessage(_T("å·²é‡Šæ”¾æ‰€æœ‰èµ„æº"));
 		return 0;
 	}
 	catch (LPCTSTR errMsg) {
-		// ¼ÇÂ¼´íÎóÈÕÖ¾
+		// è®°å½•é”™è¯¯æ—¥å¿—
 		LogMessage(errMsg);
 		delete params;
 		return 1;
@@ -419,7 +419,7 @@ bool RestartAsAdmin() {
 		if (!ShellExecuteEx(&sei)) {
 			DWORD dwError = GetLastError();
 			if (dwError == ERROR_CANCELLED) {
-				LogMessage(L"²Ù×÷±»ÓÃ»§È¡Ïû¡£");
+				LogMessage(L"æ“ä½œè¢«ç”¨æˆ·å–æ¶ˆã€‚");
 			}
 			return false;
 		}
@@ -433,35 +433,35 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	HRESULT hres;
 	CString result;
 
-	// ³õÊ¼»¯COM¿â
+	// åˆå§‹åŒ–COMåº“
 	hres = CoInitializeEx(0, COINIT_MULTITHREADED);
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨³õÊ¼»¯COM¿â¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•åˆå§‹åŒ–COMåº“ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		return false;
 	}
 
-	// ÉèÖÃCOM°²È«¼¶±ğ
+	// è®¾ç½®COMå®‰å…¨çº§åˆ«
 	hres = CoInitializeSecurity(
 		NULL,
-		-1,                          // COMÄ¬ÈÏµÄ°²È«·şÎñ
-		NULL,                        // Ã»ÓĞ·şÎñ
-		NULL,                        // Ã»ÓĞ±êÊ¶
-		RPC_C_AUTHN_LEVEL_DEFAULT,   // Ä¬ÈÏµÄÈÏÖ¤¼¶±ğ
-		RPC_C_IMP_LEVEL_IMPERSONATE, // Ä¬ÈÏµÄÄ£Äâ¼¶±ğ
-		NULL,                        // Ã»ÓĞÈÏÖ¤ĞÅÏ¢
-		EOAC_NONE,                   // Ã»ÓĞ¶îÍâµÄ¹¦ÄÜ
-		NULL                         // Ã»ÓĞreserved
+		-1,                          // COMé»˜è®¤çš„å®‰å…¨æœåŠ¡
+		NULL,                        // æ²¡æœ‰æœåŠ¡
+		NULL,                        // æ²¡æœ‰æ ‡è¯†
+		RPC_C_AUTHN_LEVEL_DEFAULT,   // é»˜è®¤çš„è®¤è¯çº§åˆ«
+		RPC_C_IMP_LEVEL_IMPERSONATE, // é»˜è®¤çš„æ¨¡æ‹Ÿçº§åˆ«
+		NULL,                        // æ²¡æœ‰è®¤è¯ä¿¡æ¯
+		EOAC_NONE,                   // æ²¡æœ‰é¢å¤–çš„åŠŸèƒ½
+		NULL                         // æ²¡æœ‰reserved
 	);
 
 	if (FAILED(hres) && hres != RPC_E_TOO_LATE) {
-		result.Format(_T("ÎŞ·¨ÉèÖÃ°²È«ĞÔ¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è®¾ç½®å®‰å…¨æ€§ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		CoUninitialize();
 		return false;
 	}
 
-	// »ñÈ¡WMI·şÎñ
+	// è·å–WMIæœåŠ¡
 	IWbemLocator* pLoc = NULL;
 	hres = CoCreateInstance(
 		CLSID_WbemLocator,
@@ -470,7 +470,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 		IID_IWbemLocator, (LPVOID*)&pLoc);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨´´½¨IWbemLocator¶ÔÏó¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•åˆ›å»ºIWbemLocatorå¯¹è±¡ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		CoUninitialize();
 		return false;
@@ -489,27 +489,27 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨Á¬½Óµ½WMI·şÎñ¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è¿æ¥åˆ°WMIæœåŠ¡ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pLoc->Release();
 		CoUninitialize();
 		return false;
 	}
 
-	// ÉèÖÃ´úÀíÈ¨ÏŞ
+	// è®¾ç½®ä»£ç†æƒé™
 	hres = CoSetProxyBlanket(
-		pSvc,                        // ½Ó¿ÚÖ¸Õë
-		RPC_C_AUTHN_WINNT,           // ÈÏÖ¤·şÎñ
-		RPC_C_AUTHZ_NONE,            // ÊÚÈ¨·şÎñ
-		NULL,                        // ·şÎñÆ÷Ö÷ÌåÃû³Æ
-		RPC_C_AUTHN_LEVEL_CALL,      // ÈÏÖ¤¼¶±ğ
-		RPC_C_IMP_LEVEL_IMPERSONATE, // Ä£Äâ¼¶±ğ
-		NULL,                        // ¿Í»§¶ËÉí·İÑéÖ¤
-		EOAC_NONE                    // ÄÜÁ¦±êÖ¾
+		pSvc,                        // æ¥å£æŒ‡é’ˆ
+		RPC_C_AUTHN_WINNT,           // è®¤è¯æœåŠ¡
+		RPC_C_AUTHZ_NONE,            // æˆæƒæœåŠ¡
+		NULL,                        // æœåŠ¡å™¨ä¸»ä½“åç§°
+		RPC_C_AUTHN_LEVEL_CALL,      // è®¤è¯çº§åˆ«
+		RPC_C_IMP_LEVEL_IMPERSONATE, // æ¨¡æ‹Ÿçº§åˆ«
+		NULL,                        // å®¢æˆ·ç«¯èº«ä»½éªŒè¯
+		EOAC_NONE                    // èƒ½åŠ›æ ‡å¿—
 	);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨ÉèÖÃ´úÀíÈ¨ÏŞ¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è®¾ç½®ä»£ç†æƒé™ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pSvc->Release();
 		pLoc->Release();
@@ -517,14 +517,14 @@ bool AddPathToDefenderExclusion(const CString& path) {
 		return false;
 	}
 
-	// ×¼±¸ÒªÖ´ĞĞµÄ·½·¨
+	// å‡†å¤‡è¦æ‰§è¡Œçš„æ–¹æ³•
 	BSTR methodName = SysAllocString(L"AddExclusion");
 	BSTR className = SysAllocString(L"MpPreference");
 
 	IWbemClassObject* pClass = NULL;
 	hres = pSvc->GetObject(className, 0, NULL, &pClass, NULL);
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨»ñÈ¡MpPreferenceÀà¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è·å–MpPreferenceç±»ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		SysFreeString(methodName);
 		SysFreeString(className);
@@ -537,7 +537,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	IWbemClassObject* pInParamsDefinition = NULL;
 	hres = pClass->GetMethod(methodName, 0, &pInParamsDefinition, NULL);
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨»ñÈ¡·½·¨¶¨Òå¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è·å–æ–¹æ³•å®šä¹‰ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pClass->Release();
 		SysFreeString(methodName);
@@ -551,7 +551,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	IWbemClassObject* pArgs = NULL;
 	hres = pInParamsDefinition->SpawnInstance(0, &pArgs);
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨´´½¨ÊäÈë²ÎÊıÊµÀı¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•åˆ›å»ºè¾“å…¥å‚æ•°å®ä¾‹ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pInParamsDefinition->Release();
 		pClass->Release();
@@ -563,7 +563,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 		return false;
 	}
 
-	// ÉèÖÃÂ·¾¶²ÎÊı
+	// è®¾ç½®è·¯å¾„å‚æ•°
 	VARIANT var;
 	VariantInit(&var);
 	var.vt = VT_BSTR;
@@ -573,7 +573,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	VariantClear(&var);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨ÉèÖÃÂ·¾¶²ÎÊı¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è®¾ç½®è·¯å¾„å‚æ•°ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pArgs->Release();
 		pInParamsDefinition->Release();
@@ -586,7 +586,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 		return false;
 	}
 
-	// ÉèÖÃÀàĞÍ²ÎÊı(1±íÊ¾Â·¾¶ÅÅ³ı)
+	// è®¾ç½®ç±»å‹å‚æ•°(1è¡¨ç¤ºè·¯å¾„æ’é™¤)
 	var.vt = VT_I4;
 	var.lVal = 1;
 
@@ -594,7 +594,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	VariantClear(&var);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨ÉèÖÃÀàĞÍ²ÎÊı¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•è®¾ç½®ç±»å‹å‚æ•°ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
 		pArgs->Release();
 		pInParamsDefinition->Release();
@@ -607,7 +607,7 @@ bool AddPathToDefenderExclusion(const CString& path) {
 		return false;
 	}
 
-	// Ö´ĞĞ·½·¨
+	// æ‰§è¡Œæ–¹æ³•
 	IWbemClassObject* pOutParams = NULL;
 	hres = pSvc->ExecMethod(
 		className,
@@ -620,29 +620,29 @@ bool AddPathToDefenderExclusion(const CString& path) {
 	);
 
 	if (FAILED(hres)) {
-		result.Format(_T("ÎŞ·¨Ö´ĞĞ·½·¨¡£´íÎó´úÂë: 0x%08X"), hres);
+		result.Format(_T("æ— æ³•æ‰§è¡Œæ–¹æ³•ã€‚é”™è¯¯ä»£ç : 0x%08X"), hres);
 		LogMessage(result);
-		LogMessage(L"Õâ¿ÉÄÜÊÇÒòÎªÏµÍ³²»Ö§³Ö´ËWMI½Ó¿Ú£¬»òÕßÄúµÄÏµÍ³°æ±¾ÔçÓÚWindows 8/Server 2012¡£");
+		LogMessage(L"è¿™å¯èƒ½æ˜¯å› ä¸ºç³»ç»Ÿä¸æ”¯æŒæ­¤WMIæ¥å£ï¼Œæˆ–è€…æ‚¨çš„ç³»ç»Ÿç‰ˆæœ¬æ—©äºWindows 8/Server 2012ã€‚");
 	}
 	else {
-		// ¼ì²é·µ»ØÖµ
+		// æ£€æŸ¥è¿”å›å€¼
 		VARIANT returnValue;
 		VariantInit(&returnValue);
 
 		hres = pOutParams->Get(L"ReturnValue", 0, &returnValue, NULL, NULL);
 		if (SUCCEEDED(hres) && returnValue.vt == VT_I4) {
 			if (returnValue.lVal == 0) {
-				LogMessage(_T("ÒÑ³É¹¦½«Â·¾¶Ìí¼Óµ½Windows DefenderÅÅ³ıÁĞ±í: ") + path);
+				LogMessage(_T("å·²æˆåŠŸå°†è·¯å¾„æ·»åŠ åˆ°Windows Defenderæ’é™¤åˆ—è¡¨: ") + path);
 			}
 			else {
-				LogMessage(L"Ìí¼ÓÂ·¾¶Ê§°Ü¡£·µ»Ø´úÂë: " + returnValue.lVal);
+				LogMessage(L"æ·»åŠ è·¯å¾„å¤±è´¥ã€‚è¿”å›ä»£ç : " + returnValue.lVal);
 			}
 		}
 		VariantClear(&returnValue);
 		pOutParams->Release();
 	}
 
-	// ÇåÀí×ÊÔ´
+	// æ¸…ç†èµ„æº
 	pArgs->Release();
 	pInParamsDefinition->Release();
 	pClass->Release();
@@ -656,8 +656,8 @@ bool AddPathToDefenderExclusion(const CString& path) {
 }
 
 bool AddPathToDefenderExclusion_Win7(const CString& path) {
-	// Windows 7 ÉÏµÄ Defender ÅÅ³ıÏî´æ´¢ÔÚ×¢²á±íÖĞ
-	// Â·¾¶: HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths
+	// Windows 7 ä¸Šçš„ Defender æ’é™¤é¡¹å­˜å‚¨åœ¨æ³¨å†Œè¡¨ä¸­
+	// è·¯å¾„: HKLM\SOFTWARE\Microsoft\Windows Defender\Exclusions\Paths
 
 	HKEY hKey = NULL;
 	LONG lResult = RegOpenKeyEx(
@@ -668,7 +668,7 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 		&hKey);
 
 	if (lResult != ERROR_SUCCESS) {
-		// ³¢ÊÔ´ò¿ªWow6432NodeÂ·¾¶(ÊÊÓÃÓÚ64Î»ÏµÍ³ÉÏµÄ32Î»Ó¦ÓÃ³ÌĞò)
+		// å°è¯•æ‰“å¼€Wow6432Nodeè·¯å¾„(é€‚ç”¨äº64ä½ç³»ç»Ÿä¸Šçš„32ä½åº”ç”¨ç¨‹åº)
 		lResult = RegOpenKeyEx(
 			HKEY_LOCAL_MACHINE,
 			_T("SOFTWARE\\Wow6432Node\\Microsoft\\Windows Defender\\Exclusions\\Paths"),
@@ -677,24 +677,24 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 			&hKey);
 
 		if (lResult != ERROR_SUCCESS) {
-			LogMessage(_T("ÎŞ·¨´ò¿ªWindows DefenderÅÅ³ıÏî×¢²á±íÂ·¾¶¡£´íÎó´úÂë: ") + lResult);
+			LogMessage(_T("æ— æ³•æ‰“å¼€Windows Defenderæ’é™¤é¡¹æ³¨å†Œè¡¨è·¯å¾„ã€‚é”™è¯¯ä»£ç : ") + lResult);
 			return false;
 		}
 	}
 
-	// ¼ì²éÂ·¾¶ÊÇ·ñÒÑ´æÔÚ
+	// æ£€æŸ¥è·¯å¾„æ˜¯å¦å·²å­˜åœ¨
 	DWORD dwType = 0;
 	DWORD dwSize = 0;
 	lResult = RegQueryValueEx(hKey, path, NULL, &dwType, NULL, &dwSize);
 
 	if (lResult == ERROR_SUCCESS) {
-		LogMessage(_T("Â·¾¶ÒÑ´æÔÚÓÚWindows DefenderÅÅ³ıÁĞ±íÖĞ: ") + path);
+		LogMessage(_T("è·¯å¾„å·²å­˜åœ¨äºWindows Defenderæ’é™¤åˆ—è¡¨ä¸­: ") + path);
 		RegCloseKey(hKey);
 		return true;
 	}
 
-	// Ìí¼ÓÂ·¾¶µ½ÅÅ³ıÁĞ±í
-	DWORD dwValue = 1; // ÖµÎª1±íÊ¾ÆôÓÃÅÅ³ı
+	// æ·»åŠ è·¯å¾„åˆ°æ’é™¤åˆ—è¡¨
+	DWORD dwValue = 1; // å€¼ä¸º1è¡¨ç¤ºå¯ç”¨æ’é™¤
 	lResult = RegSetValueEx(
 		hKey,
 		path,
@@ -704,17 +704,17 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 		sizeof(DWORD));
 
 	if (lResult != ERROR_SUCCESS) {
-		LogMessage(_T("ÎŞ·¨Ìí¼ÓÂ·¾¶µ½Windows DefenderÅÅ³ıÁĞ±í¡£´íÎó´úÂë: ") + lResult);
+		LogMessage(_T("æ— æ³•æ·»åŠ è·¯å¾„åˆ°Windows Defenderæ’é™¤åˆ—è¡¨ã€‚é”™è¯¯ä»£ç : ") + lResult);
 		RegCloseKey(hKey);
 		return false;
 	}
 
-	LogMessage(_T("ÒÑ³É¹¦½«Â·¾¶Ìí¼Óµ½Windows DefenderÅÅ³ıÁĞ±í: ") + path);
+	LogMessage(_T("å·²æˆåŠŸå°†è·¯å¾„æ·»åŠ åˆ°Windows Defenderæ’é™¤åˆ—è¡¨: ") + path);
 	RegCloseKey(hKey);
 
-	// ³¢ÊÔË¢ĞÂWindows Defender
+	// å°è¯•åˆ·æ–°Windows Defender
 	try {
-		// Ê¹ÓÃWMI³¢ÊÔË¢ĞÂDefender
+		// ä½¿ç”¨WMIå°è¯•åˆ·æ–°Defender
 		HRESULT hres;
 		hres = CoInitializeEx(0, COINIT_MULTITHREADED);
 		if (SUCCEEDED(hres)) {
@@ -753,7 +753,7 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 							hres = pInParamsDefinition->SpawnInstance(0, &pArgs);
 
 							if (SUCCEEDED(hres)) {
-								// ÉèÖÃProvider²ÎÊı(1±íÊ¾·À²¡¶¾Èí¼ş)
+								// è®¾ç½®Providerå‚æ•°(1è¡¨ç¤ºé˜²ç—…æ¯’è½¯ä»¶)
 								VARIANT var;
 								VariantInit(&var);
 								var.vt = VT_I4;
@@ -763,7 +763,7 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 								VariantClear(&var);
 
 								if (SUCCEEDED(hres)) {
-									// Ö´ĞĞ·½·¨
+									// æ‰§è¡Œæ–¹æ³•
 									IWbemClassObject* pOutParams = NULL;
 									hres = pSvc->ExecMethod(
 										className,
@@ -800,7 +800,7 @@ bool AddPathToDefenderExclusion_Win7(const CString& path) {
 		}
 	}
 	catch (...) {
-		// ºöÂÔË¢ĞÂ¹ı³ÌÖĞµÄÈÎºÎÒì³£
+		// å¿½ç•¥åˆ·æ–°è¿‡ç¨‹ä¸­çš„ä»»ä½•å¼‚å¸¸
 	}
 
 	return true;

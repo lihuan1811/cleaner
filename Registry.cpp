@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "RegistryUtil.h"
 
 BOOL RegistryUtil::ReadString(HKEY hRoot, const CString& subKey, const CString& valueName, CString& outValue)
