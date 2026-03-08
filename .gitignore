@@ -362,3 +362,10 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 /WinCleanerContentDlg.h
+
+# macOS
+.DS_Store
+
+# Unzipped resource directories (only the .zip files are tracked)
+res/系统激活/
+res/系统维护工具/

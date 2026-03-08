@@ -1,0 +1,37 @@
+name: Build WinCleaner
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:  # 允许手动触发构建
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    strategy:
+      matrix:
+        configuration: [Release]
+        platform: [Win32]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build
+      run: msbuild WinCleaner.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=${{ matrix.platform }} /p:UseOfMfc=Static
+
+    - name: Upload EXE artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: WinCleaner-${{ matrix.platform }}-${{ matrix.configuration }}
+        path: |
+          ${{ matrix.configuration }}/*.exe
+          Win32/${{ matrix.configuration }}/*.exe
+        if-no-files-found: warn
+        retention-days: 30
