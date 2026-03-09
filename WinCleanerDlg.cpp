@@ -510,24 +510,11 @@ void CWinCleanerDlg::OnBnClickedDiskDefrag()
 	CString fileName = _T("SmartDefrag-Pro-v10.3.0.435.exe");
 	CString exePath = m_outDir + _T("2.系统维护工具\\2.磁盘优化\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
-		LogMessage(_T("未找到 ") + MaskFileName(fileName));
 		AfxMessageBox(_T("未找到[碎片整理]程序"));
 		return;
 	}
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("碎片整理");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		LogMessage(_T("已启动 ") + MaskFileName(fileName));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-		LogMessage(_T("已完成 [碎片整理]"));
-	}
-	else
-	{
-		AfxMessageBox(_T("无法启动[碎片整理]程序"));
-	}
+	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
+	LogMessage(_T("已启动碎片整理"));
 }
 
 void CWinCleanerDlg::OnBnClickedSoftwareUninstall() {
