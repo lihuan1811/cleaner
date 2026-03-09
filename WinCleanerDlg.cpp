@@ -758,13 +758,25 @@ void CWinCleanerDlg::OnBnClickedCloseSecurityCenter()
 	CString fileName = _T("dControl.exe");
 	CString exePath = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\") + fileName;
 	CString exeDir = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\");
+
 	if (_taccess(exePath, 0) != 0) {
-		// fallback: 3.系统安全目录
-		exePath = m_outDir + _T("3.系统安全\\5.关闭安全中心1\\cde\\") + fileName;
-		exeDir = m_outDir + _T("3.系统安全\\5.关闭安全中心1\\cde\\");
+		// 文件可能被Defender删除，尝试重新解压
+		LogMessage(_T("dControl.exe不存在，尝试重新释放..."));
+		// 先添加白名单
+		AddPathToDefenderExclusion(exeDir);
+		// 重新从资源释放ZIP并解压目标文件
+		CString zipPath = m_tempPath + _T("tools.zip");
+		DeleteFile(zipPath);
+		ExtractResourceToFile(IDR_ZIPRC_TOOLS, _T("ZIPRC"), zipPath);
+		if (PathFileExists(zipPath)) {
+			MakeDirP(exeDir);
+			UnzipToDir(zipPath, m_outDir);
+			DeleteFile(zipPath);
+		}
 	}
+
 	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[关闭安全中心]工具\n路径: ") + exePath);
+		AfxMessageBox(_T("未找到[关闭安全中心]工具，可能被安全软件拦截。\n请先关闭Windows Defender实时保护后重试。"));
 		return;
 	}
 	ShellExecute(NULL, _T("runas"), exePath, NULL, exeDir, SW_SHOWNORMAL);
