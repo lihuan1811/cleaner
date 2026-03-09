@@ -302,7 +302,7 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir)
 		}
 		else {
 			CString dir = outPath.Left(outPath.ReverseFind(_T('\\')));
-			if (!dir.IsEmpty() && _taccess(dir, 0) != 0) _tmkdir(dir);
+			if (!dir.IsEmpty() && _taccess(dir, 0) != 0) MakeDirP(dir);
 			int mblen = WideCharToMultiByte(CP_UTF8, 0, outPath, -1, NULL, 0, NULL, NULL);
 			std::string mbPath(mblen, 0);
 			WideCharToMultiByte(CP_UTF8, 0, outPath, -1, &mbPath[0], mblen, NULL, NULL);
