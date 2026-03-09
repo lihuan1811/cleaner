@@ -296,16 +296,18 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir)
 		else {
 			fileName = L"";
 		}
+		// ZIP用正斜杠，Windows需要反斜杠
+		fileName.Replace(_T('/'), _T('\\'));
 		CString outPath = outDir + fileName;
 		if (stat.m_is_directory) {
-			_tmkdir(outPath);
+			MakeDirP(outPath);
 		}
 		else {
 			CString dir = outPath.Left(outPath.ReverseFind(_T('\\')));
 			if (!dir.IsEmpty() && _taccess(dir, 0) != 0) MakeDirP(dir);
-			int mblen = WideCharToMultiByte(CP_UTF8, 0, outPath, -1, NULL, 0, NULL, NULL);
+			int mblen = WideCharToMultiByte(CP_ACP, 0, outPath, -1, NULL, 0, NULL, NULL);
 			std::string mbPath(mblen, 0);
-			WideCharToMultiByte(CP_UTF8, 0, outPath, -1, &mbPath[0], mblen, NULL, NULL);
+			WideCharToMultiByte(CP_ACP, 0, outPath, -1, &mbPath[0], mblen, NULL, NULL);
 			mz_zip_reader_extract_to_file(&zip, i, mbPath.c_str(), 0);
 		}
 	}
