@@ -396,24 +396,22 @@ void CWinCleanerDlg::OnBnClickedCacheClean() {
 
 void CWinCleanerDlg::OnBnClickedRedundantClean() {
 	LogMessage(_T("开始 [冗余文件清理]"));
-	CString fileName = _T("WICleanupUI.EXE");
+	CString fileName = _T("WICleanupC.EXE");
 	CString exePath = m_outDir + _T("1.常用清理功能\\4.冗余文件清理\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[冗余文件清理]程序"));
 		return;
 	}
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("冗余文件清理");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		LogMessage(_T("已启动冗余文件清理"));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
+	// 以管理员权限打开CMD并运行WICleanupC.EXE
+	CString cmdParams;
+	cmdParams.Format(_T("/k \"%s\""), exePath);
+	HINSTANCE hRes = ShellExecute(NULL, _T("runas"), _T("cmd.exe"),
+		cmdParams, NULL, SW_SHOWNORMAL);
+	if ((INT_PTR)hRes > 32) {
+		LogMessage(_T("已启动冗余文件清理(管理员CMD)"));
 	}
-	else
-	{
-		AfxMessageBox(_T("无法启动[冗余文件清理]程序"));
+	else {
+		AfxMessageBox(_T("无法启动[冗余文件清理]，请确认管理员权限"));
 	}
 }
 
