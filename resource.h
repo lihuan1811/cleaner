@@ -24,8 +24,8 @@
 #define IDC_BTN_BIGFILE_DELETE          1002
 #define IDC_COMBO_SERVICE               1002
 #define IDC_BTN_CACHE_CLEAN             1003
-#define IDC_BTN_WECHAT_CLEAN            1004
-#define IDC_BTN_QQ_CLEAN                1005
+#define IDC_BTN_REDUNDANT_CLEAN         1004
+#define IDC_BTN_DRIVER_MGR              1005
 #define IDC_BTN_DISK_ANALYZE            1011
 
 // 系统维护工具
@@ -44,7 +44,7 @@
 #define IDC_BTN_KILL_PROCESS            1014
 #define IDC_BTN_DISABLE_UPDATE          1021
 #define IDC_BTN_CLOSE_SECURITY_CENTER   1022
-#define IDC_BTN_CLOSE_FIREWALL          1023
+#define IDC_BTN_CONTEXT_MGR             1033
 
 // 其它功能
 #define IDC_GROUP_OTHER                 1030
@@ -52,15 +52,8 @@
 #define IDC_BTN_DOWNLOAD_PE             1035
 #define IDC_BTN_DOC_MIGRATION           1036
 #define IDC_BTN_STARTUP_MGR             1032
-#define IDC_BTN_DIRECTX_FIX            1064
-#define IDC_BTN_GAME_RUNTIME           1065
-
-// 旧的保留（兼容编译）
-#define IDC_BTN_DISK_EXPAND             1012
-#define IDC_BTN_SETTINGS                1031
-#define IDC_BTN_CONTEXT_MGR             1033
-#define IDC_BTN_UNINSTALL               1034
-#define IDC_BTN_BANDIZIP                1038
+#define IDC_BTN_VIRUS_SCAN              1066
+#define IDC_BTN_DIRECTX_FIX             1064
 
 // 资源
 #define IDR_ZIPRC_TOOLS                 2002
@@ -71,7 +64,7 @@
 #define IDC_LIST_FILES                  3003
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139

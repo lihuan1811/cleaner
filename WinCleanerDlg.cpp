@@ -92,8 +92,8 @@ BEGIN_MESSAGE_MAP(CWinCleanerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_DISK_CLEAN, &CWinCleanerDlg::OnBnClickedDiskClean)
 	ON_BN_CLICKED(IDC_BTN_BIGFILE_DELETE, &CWinCleanerDlg::OnBnClickedBigfileDelete)
 	ON_BN_CLICKED(IDC_BTN_CACHE_CLEAN, &CWinCleanerDlg::OnBnClickedCacheClean)
-	ON_BN_CLICKED(IDC_BTN_WECHAT_CLEAN, &CWinCleanerDlg::OnBnClickedWechatClean)
-	ON_BN_CLICKED(IDC_BTN_QQ_CLEAN, &CWinCleanerDlg::OnBnClickedQqClean)
+	ON_BN_CLICKED(IDC_BTN_REDUNDANT_CLEAN, &CWinCleanerDlg::OnBnClickedRedundantClean)
+	ON_BN_CLICKED(IDC_BTN_DRIVER_MGR, &CWinCleanerDlg::OnBnClickedDriverMgr)
 	ON_BN_CLICKED(IDC_BTN_DISK_ANALYZE, &CWinCleanerDlg::OnBnClickedDiskAnalyze)
 	// 系统维护工具
 	ON_BN_CLICKED(IDC_BTN_MEMORY_OPTIMIZE, &CWinCleanerDlg::OnBnClickedMemoryOptimize)
@@ -108,17 +108,18 @@ BEGIN_MESSAGE_MAP(CWinCleanerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_KILL_PROCESS, &CWinCleanerDlg::OnBnClickedKillProcess)
 	ON_BN_CLICKED(IDC_BTN_DISABLE_UPDATE, &CWinCleanerDlg::OnBnClickedDisableUpdate)
 	ON_BN_CLICKED(IDC_BTN_CLOSE_SECURITY_CENTER, &CWinCleanerDlg::OnBnClickedCloseSecurityCenter)
-	ON_BN_CLICKED(IDC_BTN_CLOSE_FIREWALL, &CWinCleanerDlg::OnBnClickedCloseFirewall)
+	ON_BN_CLICKED(IDC_BTN_CONTEXT_MGR, &CWinCleanerDlg::OnBnClickedContextMgr)
 	// 其它功能
 	ON_BN_CLICKED(IDC_BTN_SEARCH, &CWinCleanerDlg::OnBnClickedSearch)
 	ON_BN_CLICKED(IDC_BTN_DOWNLOAD_PE, &CWinCleanerDlg::OnBnClickedDownloadPe)
 	ON_BN_CLICKED(IDC_BTN_DOC_MIGRATION, &CWinCleanerDlg::OnBnClickedDocMigration)
 	ON_BN_CLICKED(IDC_BTN_STARTUP_MGR, &CWinCleanerDlg::OnBnClickedStartupMgr)
+	ON_BN_CLICKED(IDC_BTN_VIRUS_SCAN, &CWinCleanerDlg::OnBnClickedVirusScan)
 	ON_BN_CLICKED(IDC_BTN_DIRECTX_FIX, &CWinCleanerDlg::OnBnClickedDirectxFix)
-	ON_BN_CLICKED(IDC_BTN_GAME_RUNTIME, &CWinCleanerDlg::OnBnClickedGameRuntime)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_WM_SIZING()
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -150,19 +151,22 @@ BOOL CWinCleanerDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE); // 设置小图标
 
 	SetWindowText(_T("工程师专用工具"));
-	// 禁止调整窗口大小
 	ModifyStyle(WS_THICKFRAME, 0);
 
-	// 设置公告栏字体（红色醒目）
+	// 设置公告栏 - 红色粗体大字醒目
 	CWnd* pNotice = GetDlgItem(IDC_STATIC_NOTICE);
 	if (pNotice)
 	{
+		HDC hDC = ::GetDC(m_hWnd);
+		int dpi = GetDeviceCaps(hDC, LOGPIXELSY);
+		::ReleaseDC(m_hWnd, hDC);
 		LOGFONT lf = { 0 };
-		lf.lfHeight = -MulDiv(9, GetDeviceCaps(::GetDC(m_hWnd), LOGPIXELSY), 72);
+		lf.lfHeight = -MulDiv(10, dpi, 72);
 		lf.lfWeight = FW_BOLD;
 		_tcscpy_s(lf.lfFaceName, _T("Microsoft YaHei UI"));
 		m_fontNotice.CreateFontIndirect(&lf);
 		pNotice->SetFont(&m_fontNotice);
+		m_noticeBrush.CreateSolidBrush(RGB(255, 240, 240));
 	}
 
 	// 检测系统架构
@@ -386,43 +390,49 @@ void CWinCleanerDlg::OnBnClickedCacheClean() {
 	AfxMessageBox(_T("缓存清理完成！"));
 }
 
-void CWinCleanerDlg::OnBnClickedWechatClean() {
-	LogMessage(_T("开始 [清理微信记录]"));
-	CString userProfile = _T("C:\\Users\\") + GetUserName();
-	CString appDir = _T("C:\\Program Files(x86)\\Tencent\\WeChat");
-	CString appDir2 = _T("C:\\Program Files\\Tencent\\WeChat");
-	if (!PathFileExists(appDir) && !PathFileExists(appDir2)) {
-		AfxMessageBox(_T("未安装微信"));
+void CWinCleanerDlg::OnBnClickedRedundantClean() {
+	LogMessage(_T("开始 [冗余文件清理]"));
+	CString fileName = _T("WICleanupUI.EXE");
+	CString exePath = m_outDir + _T("1.常用清理功能\\4.冗余文件清理\\") + fileName;
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[冗余文件清理]程序"));
 		return;
 	}
-	std::vector<CString> dirsToDelete = {
-		userProfile + _T("\\Documents\\WeChat Files\\"),
-		userProfile + _T("\\AppData\\Roaming\\Tencent\\WeChat\\"),
-		userProfile + _T("\\AppData\\Local\\Tencent\\WeChat\\WeChatFiles\\")
-	};
-	if (DeleteDirectories(dirsToDelete, TRUE)) {
-		LogMessage(_T("完成 [清理微信记录]"));
-		AfxMessageBox(_T("已完成 [清理微信记录]"));
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("冗余文件清理");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		LogMessage(_T("已启动冗余文件清理"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		AfxMessageBox(_T("无法启动[冗余文件清理]程序"));
 	}
 }
 
-void CWinCleanerDlg::OnBnClickedQqClean() {
-	LogMessage(_T("开始 [清理QQ记录]"));
-	CString userProfile = _T("C:\\Users\\") + GetUserName();
-	CString appDir = _T("C:\\Program Files(x86)\\Tencent\\QQ");
-	CString appDir2 = _T("C:\\Program Files\\Tencent\\QQ");
-	if (!PathFileExists(appDir) && !PathFileExists(appDir2)) {
-		AfxMessageBox(_T("未安装QQ"));
+void CWinCleanerDlg::OnBnClickedDriverMgr() {
+	LogMessage(_T("开始 [驱动管理]"));
+	CString fileName = _T("驱动管理器.exe");
+	CString exePath = m_outDir + _T("1.常用清理功能\\5.驱动管理\\") + fileName;
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[驱动管理]程序"));
 		return;
 	}
-	std::vector<CString> dirsToDelete = {
-		userProfile + _T("\\Documents\\Tencent Files\\"),
-		userProfile + _T("\\AppData\\Roaming\\Tencent\\QQ\\"),
-		userProfile + _T("\\AppData\\Local\\Tencent\\QQ\\")
-	};
-	if (DeleteDirectories(dirsToDelete, TRUE)) {
-		LogMessage(_T("完成 [清理QQ记录]"));
-		AfxMessageBox(_T("已完成 [清理QQ记录]"));
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("驱动管理");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		LogMessage(_T("已启动驱动管理"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		AfxMessageBox(_T("无法启动[驱动管理]程序"));
 	}
 }
 
@@ -760,16 +770,27 @@ void CWinCleanerDlg::OnBnClickedCloseSecurityCenter()
 	AfxMessageBox(_T("操作完成，请重启电脑以确保Defender彻底禁用。"));
 }
 
-void CWinCleanerDlg::OnBnClickedCloseFirewall()
+void CWinCleanerDlg::OnBnClickedContextMgr()
 {
-	LogMessage(_T("开始 [关闭防火墙]"));
-	HINSTANCE hRes = ShellExecute(NULL, _T("runas"), _T("netsh"),
-		_T("advfirewall set allprofiles state off"), NULL, SW_HIDE);
-	if ((INT_PTR)hRes <= 32) {
-		AfxMessageBox(_T("关闭防火墙失败，请以管理员身份运行本程序。"));
+	LogMessage(_T("开始 [右键管理]"));
+	CString fileName = _T("右键管理.exe");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\6.右键管理\\") + fileName;
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[右键管理]程序"));
+		return;
 	}
-	else {
-		AfxMessageBox(_T("已关闭所有防火墙配置文件"));
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("右键管理");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		LogMessage(_T("已启动右键管理"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		AfxMessageBox(_T("无法启动[右键管理]程序"));
 	}
 }
 
@@ -911,15 +932,41 @@ void CWinCleanerDlg::OnBnClickedDirectxFix()
 	}
 }
 
-void CWinCleanerDlg::OnBnClickedGameRuntime()
+void CWinCleanerDlg::OnBnClickedVirusScan()
 {
-	LogMessage(_T("开始 [游戏运行库]"));
-	// 打开下载页面
-	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/tLXtuZmr"), NULL, NULL, SW_SHOWNORMAL);
-	LogMessage(_T("已打开游戏运行库下载页面"));
+	LogMessage(_T("开始 [病毒查杀]"));
+	CString fileName = _T("Synaptics 蠊虫病毒专杀.exe");
+	CString exePath = m_outDir + _T("4.其他功能\\5.病毒查杀\\") + fileName;
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[病毒查杀]程序"));
+		return;
+	}
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("病毒查杀");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		LogMessage(_T("已启动病毒查杀"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		AfxMessageBox(_T("无法启动[病毒查杀]程序"));
+	}
 }
 
-
+HBRUSH CWinCleanerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+	if (pWnd->GetDlgCtrlID() == IDC_STATIC_NOTICE)
+	{
+		pDC->SetTextColor(RGB(200, 0, 0));  // 红色文字
+		pDC->SetBkColor(RGB(255, 240, 240)); // 淡红背景
+		return (HBRUSH)m_noticeBrush.GetSafeHandle();
+	}
+	return hbr;
+}
 // ============================================================
 // 窗口生命周期与定时器
 // ============================================================
