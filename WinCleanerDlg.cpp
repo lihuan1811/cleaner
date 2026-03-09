@@ -395,6 +395,34 @@ void CWinCleanerDlg::OnBnClickedCacheClean() {
 		_T("C:\\ProgramData\\Dell\\SARemediation\\SystemRepair\\Snapshots\\Backup")
 	};
 	DeleteDirectories(dirs);
+
+	// 无畏契约高光时刻清理
+	TCHAR userProfile[MAX_PATH];
+	ExpandEnvironmentStrings(_T("%USERPROFILE%"), userProfile, MAX_PATH);
+	CString aclosPath = CString(userProfile) + _T("\\AppData\\ACLOS\\aclos-highlight");
+	if (PathFileExists(aclosPath)) {
+		// 计算文件夹大小
+		ULONGLONG totalSize = 0;
+		CString searchPath = aclosPath + _T("\\*");
+		WIN32_FIND_DATA fd;
+		HANDLE hFind = FindFirstFile(searchPath, &fd);
+		if (hFind != INVALID_HANDLE_VALUE) {
+			do {
+				if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)) {
+					totalSize += ((ULONGLONG)fd.nFileSizeHigh << 32) | fd.nFileSizeLow;
+				}
+			} while (FindNextFile(hFind, &fd));
+			FindClose(hFind);
+		}
+		double sizeGB = totalSize / (1024.0 * 1024.0 * 1024.0);
+		CString msg;
+		msg.Format(_T("是否清理无畏契约高光时刻？\n占用 %.2f GB 空间"), sizeGB);
+		if (AfxMessageBox(msg, MB_YESNO | MB_ICONQUESTION) == IDYES) {
+			RecursiveDeleteDirectory(aclosPath, FALSE);
+			LogMessage(_T("已清理无畏契约高光时刻"));
+		}
+	}
+
 	LogMessage(_T("完成 [缓存清理]"));
 	AfxMessageBox(_T("缓存清理完成！"));
 }
