@@ -976,7 +976,7 @@ void CWinCleanerDlg::OnBnClickedDlTools()
 void CWinCleanerDlg::OnBnClickedThisPcMgr()
 {
 	LogMessage(_T("开始 [此电脑管理]"));
-	CString fileName = _T("此电脑管理的工具.exe");
+	CString fileName = _T("4.此电脑管理的工具.exe");
 	CString exePath = m_outDir + _T("5.常用下载\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[此电脑管理]程序"));
