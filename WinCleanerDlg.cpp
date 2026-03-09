@@ -508,7 +508,7 @@ void CWinCleanerDlg::OnBnClickedDiskDefrag()
 {
 	LogMessage(_T("开始 [碎片整理]"));
 	CString fileName = _T("SmartDefrag-Pro-v10.3.0.435.exe");
-	CString exePath = m_outDir + _T("2.系统维护工具\\2.磁盘优化\\") + fileName;
+	CString exePath = m_outDir + _T("2.系统优化\\7.碎片整理\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[碎片整理]程序"));
 		return;
