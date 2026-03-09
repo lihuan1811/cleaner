@@ -363,7 +363,6 @@ void CWinCleanerDlg::OnBnClickedBigfileDelete()
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
 		LogMessage(_T("完成 [关闭休眠]"));
-		this->OnBnClickedDiskClean();
 	}
 	else
 	{
@@ -383,7 +382,8 @@ void CWinCleanerDlg::OnBnClickedCacheClean() {
 		_T("C:\\ProgramData\\Dell\\SARemediation\\SystemRepair\\Snapshots\\Backup")
 	};
 	DeleteDirectories(dirs);
-	this->OnBnClickedBigfileDelete();
+	LogMessage(_T("完成 [缓存清理]"));
+	AfxMessageBox(_T("缓存清理完成！"));
 }
 
 void CWinCleanerDlg::OnBnClickedWechatClean() {
