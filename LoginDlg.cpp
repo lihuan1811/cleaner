@@ -257,7 +257,7 @@ void CLoginDlg::OnBnClickedOk()
     CString cardNo;
     m_editCardNo.GetWindowText(cardNo);
 
-    if (cardNo == _T("SMZ@2025#"))
+    if (cardNo == _T("admin.2026"))
     {
         LogMessage(_T("登录验证成功！"));
         CDialogEx::OnOK();

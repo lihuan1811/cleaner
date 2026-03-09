@@ -975,7 +975,7 @@ void CWinCleanerDlg::OnBnClickedDlBeauty()
 void CWinCleanerDlg::OnBnClickedDlTools()
 {
 	LogMessage(_T("打开工具下载"));
-	ShellExecute(NULL, _T("open"), _T("https://yype.lanzoul.com/b00zy94laf"), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/tLXtuZmr"), NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWinCleanerDlg::OnBnClickedThisPcMgr()
