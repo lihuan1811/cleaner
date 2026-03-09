@@ -22,8 +22,10 @@ protected:
 	BOOLEAN is64 = FALSE;
 	CFont m_fontNotice;
 	CBrush m_noticeBrush;
+	CString m_strNoticeText;
+	int m_nNoticeScrollPos = 0;
 
-	enum { ID_TIMER_AUTO_DELETE = 1001 };
+	enum { ID_TIMER_AUTO_DELETE = 1001, ID_TIMER_NOTICE_SCROLL = 1002 };
 	static const DWORD AUTO_DELETE_SECONDS = 30 * 24 * 60 * 60;
 	time_t m_tInstallTime = 0;
 	void CheckAutoDelete();

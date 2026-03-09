@@ -173,6 +173,11 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		m_noticeBrush.CreateSolidBrush(RGB(255, 240, 240));
 	}
 
+	// 公告栏轮播文字
+	m_strNoticeText = _T("★ 正在为您远程服务，请不要离开电脑，及时回复平台消息！ ★ 工程师专用工具 - 系统维护专家 ★      ");
+	m_nNoticeScrollPos = 0;
+	SetTimer(ID_TIMER_NOTICE_SCROLL, 150, nullptr);
+
 	// 检测系统架构
 	SYSTEM_INFO si;
 	GetNativeSystemInfo(&si);
@@ -1067,6 +1072,17 @@ void CWinCleanerDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	if (nIDEvent == ID_TIMER_AUTO_DELETE) {
 		CheckAutoDelete();
+		return;
+	}
+	if (nIDEvent == ID_TIMER_NOTICE_SCROLL) {
+		// 公告栏滚动效果
+		CWnd* pNotice = GetDlgItem(IDC_STATIC_NOTICE);
+		if (pNotice && !m_strNoticeText.IsEmpty()) {
+			int len = m_strNoticeText.GetLength();
+			m_nNoticeScrollPos = (m_nNoticeScrollPos + 1) % len;
+			CString display = m_strNoticeText.Mid(m_nNoticeScrollPos) + m_strNoticeText.Left(m_nNoticeScrollPos);
+			pNotice->SetWindowText(display);
+		}
 		return;
 	}
 	CDialogEx::OnTimer(nIDEvent);
