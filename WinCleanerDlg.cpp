@@ -165,7 +165,7 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		int dpi = GetDeviceCaps(hDC, LOGPIXELSY);
 		::ReleaseDC(m_hWnd, hDC);
 		LOGFONT lf = { 0 };
-		lf.lfHeight = -MulDiv(11, dpi, 72);
+		lf.lfHeight = -MulDiv(13, dpi, 72);
 		lf.lfWeight = FW_BOLD;
 		_tcscpy_s(lf.lfFaceName, _T("Microsoft YaHei UI"));
 		m_fontNotice.CreateFontIndirect(&lf);
