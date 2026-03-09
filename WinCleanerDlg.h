@@ -32,6 +32,9 @@ protected:
 	BOOLEAN is64 = FALSE;
 	int currentStep = 0; // 当前步骤索引
 
+	// 公告栏字体
+	CFont m_fontNotice;
+
 	// 自删除相关
 	enum { ID_TIMER_AUTO_DELETE = 1001 };
 	static const DWORD AUTO_DELETE_SECONDS = 30 * 24 * 60 * 60;
@@ -53,29 +56,39 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
+
+	// 常用清理功能
 	afx_msg void OnBnClickedDiskClean();
 	afx_msg void OnBnClickedBigfileDelete();
 	afx_msg void OnBnClickedCacheClean();
 	afx_msg void OnBnClickedWechatClean();
 	afx_msg void OnBnClickedQqClean();
 	afx_msg void OnBnClickedDiskAnalyze();
-	afx_msg void OnBnClickedDiskExpand();
+
+	// 系统维护工具
+	afx_msg void OnBnClickedMemoryOptimize();
+	afx_msg void OnBnClickedDiskDefrag();
 	afx_msg void OnBnClickedSoftwareUninstall();
-	afx_msg void OnBnClickedKillProcess();
+	afx_msg void OnBnClickedSysSettingsOpt();
+	afx_msg void OnBnClickedSysExtremeOpt();
+	afx_msg void OnBnClickedSystemOptimize();
+
+	// 系统安全与激活
+	afx_msg void OnBnClickedSystemActivate();
 	afx_msg void OnBnClickedPopupBlock();
+	afx_msg void OnBnClickedKillProcess();
 	afx_msg void OnBnClickedDisableUpdate();
 	afx_msg void OnBnClickedCloseSecurityCenter();
 	afx_msg void OnBnClickedCloseFirewall();
-	afx_msg void OnBnClickedSystemActivate();
+
+	// 其它功能
 	afx_msg void OnBnClickedSearch();
-	afx_msg void OnBnClickedSettings();
 	afx_msg void OnBnClickedStartupMgr();
-	afx_msg void OnBnClickedContextMgr();
-	afx_msg void OnBnClickedUninstall();
 	afx_msg void OnBnClickedDownloadPe();
-	afx_msg void OnBnClickedDocMigration();  // 添加文档迁移按钮的处理函数
-	afx_msg void OnBnClickedSystemOptimize();
-	afx_msg void OnBnClickedBandizip();
+	afx_msg void OnBnClickedDocMigration();
+	afx_msg void OnBnClickedDirectxFix();
+	afx_msg void OnBnClickedGameRuntime();
+
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	DECLARE_MESSAGE_MAP()

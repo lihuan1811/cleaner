@@ -368,3 +368,6 @@ FodyWeavers.xsd
 # Unzipped resource directories (only the .zip files are tracked)
 res/系统激活/
 res/系统维护工具/
+
+# Tools reference directory (not compiled into EXE)
+res/tools/
