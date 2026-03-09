@@ -765,17 +765,15 @@ void CWinCleanerDlg::OnBnClickedDisableUpdate() {
 void CWinCleanerDlg::OnBnClickedCloseSecurityCenter()
 {
 	LogMessage(_T("开始 [关闭安全中心]"));
-	ShellExecute(NULL, _T("runas"), _T("sc"), _T("stop wscsvc"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("sc"), _T("config wscsvc start= disabled"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("sc"), _T("stop WinDefend"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("sc"), _T("config WinDefend start= disabled"), NULL, SW_HIDE);
-	RegistryUtil::WriteString(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Policies\\Microsoft\\Windows Defender"), _T("DisableAntiSpyware"), _T("1"));
-	RegistryUtil::WriteString(HKEY_LOCAL_MACHINE, _T("SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection"), _T("DisableRealtimeMonitoring"), _T("1"));
-	ShellExecute(NULL, _T("runas"), _T("schtasks"), _T("/Change /TN \"Microsoft\\Windows\\Windows Defender\\Windows Defender Scheduled Scan\" /Disable"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("schtasks"), _T("/Change /TN \"Microsoft\\Windows\\Windows Defender\\Windows Defender Cache Maintenance\" /Disable"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("schtasks"), _T("/Change /TN \"Microsoft\\Windows\\Windows Defender\\Windows Defender Cleanup\" /Disable"), NULL, SW_HIDE);
-	ShellExecute(NULL, _T("runas"), _T("schtasks"), _T("/Change /TN \"Microsoft\\Windows\\Windows Defender\\Windows Defender Verification\" /Disable"), NULL, SW_HIDE);
-	AfxMessageBox(_T("操作完成，请重启电脑以确保Defender彻底禁用。"));
+	CString fileName = _T("dControl.exe");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\") + fileName;
+	CString exeDir = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\");
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[关闭安全中心]工具"));
+		return;
+	}
+	ShellExecute(NULL, _T("runas"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+	LogMessage(_T("已启动关闭安全中心工具(dControl)"));
 }
 
 void CWinCleanerDlg::OnBnClickedContextMgr()
