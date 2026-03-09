@@ -116,10 +116,10 @@ BEGIN_MESSAGE_MAP(CWinCleanerDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_STARTUP_MGR, &CWinCleanerDlg::OnBnClickedStartupMgr)
 	ON_BN_CLICKED(IDC_BTN_VIRUS_SCAN, &CWinCleanerDlg::OnBnClickedVirusScan)
 	ON_BN_CLICKED(IDC_BTN_SYSTEM_REPAIR, &CWinCleanerDlg::OnBnClickedSystemRepair)
-	// 常用下载
+	// 下载与其他
 	ON_BN_CLICKED(IDC_BTN_DL_BEAUTY, &CWinCleanerDlg::OnBnClickedDlBeauty)
-	ON_BN_CLICKED(IDC_BTN_DL_LANZOU, &CWinCleanerDlg::OnBnClickedDlLanzou)
-	ON_BN_CLICKED(IDC_BTN_DL_PLANE, &CWinCleanerDlg::OnBnClickedDlPlane)
+	ON_BN_CLICKED(IDC_BTN_DL_TOOLS, &CWinCleanerDlg::OnBnClickedDlTools)
+	ON_BN_CLICKED(IDC_BTN_THIS_PC_MGR, &CWinCleanerDlg::OnBnClickedThisPcMgr)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_WM_SIZING()
@@ -165,7 +165,7 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		int dpi = GetDeviceCaps(hDC, LOGPIXELSY);
 		::ReleaseDC(m_hWnd, hDC);
 		LOGFONT lf = { 0 };
-		lf.lfHeight = -MulDiv(10, dpi, 72);
+		lf.lfHeight = -MulDiv(11, dpi, 72);
 		lf.lfWeight = FW_BOLD;
 		_tcscpy_s(lf.lfFaceName, _T("Microsoft YaHei UI"));
 		m_fontNotice.CreateFontIndirect(&lf);
@@ -958,7 +958,7 @@ void CWinCleanerDlg::OnBnClickedVirusScan()
 }
 
 // ============================================================
-// 常用下载
+// 下载与其他
 // ============================================================
 
 void CWinCleanerDlg::OnBnClickedDlBeauty()
@@ -967,16 +967,34 @@ void CWinCleanerDlg::OnBnClickedDlBeauty()
 	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/yj15tJ3U"), NULL, NULL, SW_SHOWNORMAL);
 }
 
-void CWinCleanerDlg::OnBnClickedDlLanzou()
+void CWinCleanerDlg::OnBnClickedDlTools()
 {
-	LogMessage(_T("打开蓝奏云工具下载"));
+	LogMessage(_T("打开工具下载"));
 	ShellExecute(NULL, _T("open"), _T("https://yype.lanzoul.com/b00zy94laf"), NULL, NULL, SW_SHOWNORMAL);
 }
 
-void CWinCleanerDlg::OnBnClickedDlPlane()
+void CWinCleanerDlg::OnBnClickedThisPcMgr()
 {
-	LogMessage(_T("打开小飞机工具下载"));
-	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/tLXtuZmr"), NULL, NULL, SW_SHOWNORMAL);
+	LogMessage(_T("开始 [此电脑管理]"));
+	CString fileName = _T("此电脑管理的工具.exe");
+	CString exePath = m_outDir + _T("5.常用下载\\") + fileName;
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[此电脑管理]程序"));
+		return;
+	}
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("此电脑管理");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	{
+		LogMessage(_T("已启动此电脑管理"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		AfxMessageBox(_T("无法启动[此电脑管理]程序"));
+	}
 }
 
 HBRUSH CWinCleanerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)

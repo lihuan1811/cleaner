@@ -73,10 +73,10 @@ protected:
 	afx_msg void OnBnClickedVirusScan();
 	afx_msg void OnBnClickedSystemRepair();
 
-	// 常用下载
+	// 下载与其他
 	afx_msg void OnBnClickedDlBeauty();
-	afx_msg void OnBnClickedDlLanzou();
-	afx_msg void OnBnClickedDlPlane();
+	afx_msg void OnBnClickedDlTools();
+	afx_msg void OnBnClickedThisPcMgr();
 
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 

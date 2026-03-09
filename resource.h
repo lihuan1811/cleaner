@@ -55,11 +55,11 @@
 #define IDC_BTN_VIRUS_SCAN              1066
 #define IDC_BTN_SYSTEM_REPAIR           1064
 
-// 常用下载
+// 下载与其他
 #define IDC_GROUP_DOWNLOAD              1040
 #define IDC_BTN_DL_BEAUTY               1070
-#define IDC_BTN_DL_LANZOU               1071
-#define IDC_BTN_DL_PLANE                1072
+#define IDC_BTN_DL_TOOLS                1071
+#define IDC_BTN_THIS_PC_MGR             1072
 
 // 资源
 #define IDR_ZIPRC_TOOLS                 2002
