@@ -280,12 +280,23 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir)
 {
 	mz_zip_archive zip;
 	memset(&zip, 0, sizeof(zip));
-	if (!mz_zip_reader_init_file(&zip, CT2A(zipPath), 0))
+
+	// 用ANSI打开ZIP文件（路径不含中文）
+	CT2A aZipPath(zipPath);
+	if (!mz_zip_reader_init_file(&zip, aZipPath, 0)) {
+		LogMessage(_T("无法打开ZIP文件: ") + zipPath);
 		return false;
+	}
+
 	mz_uint fileCount = mz_zip_reader_get_num_files(&zip);
+	LogMessage(_T("ZIP文件包含 ") + CString(std::to_wstring(fileCount).c_str()) + _T(" 个条目"));
+
+	int successCount = 0;
 	for (mz_uint i = 0; i < fileCount; ++i) {
 		mz_zip_archive_file_stat stat;
 		if (!mz_zip_reader_file_stat(&zip, i, &stat)) continue;
+
+		// UTF-8 -> Wide
 		int wlen = MultiByteToWideChar(CP_UTF8, 0, stat.m_filename, -1, NULL, 0);
 		CString fileName;
 		if (wlen > 0) {
@@ -293,25 +304,38 @@ bool UnzipToDir(const CString& zipPath, const CString& outDir)
 			MultiByteToWideChar(CP_UTF8, 0, stat.m_filename, -1, wbuf, wlen);
 			fileName.ReleaseBuffer();
 		}
-		else {
-			fileName = L"";
-		}
+		if (fileName.IsEmpty()) continue;
+
 		// ZIP用正斜杠，Windows需要反斜杠
 		fileName.Replace(_T('/'), _T('\\'));
 		CString outPath = outDir + fileName;
+
 		if (stat.m_is_directory) {
 			MakeDirP(outPath);
 		}
 		else {
+			// 确保父目录存在
 			CString dir = outPath.Left(outPath.ReverseFind(_T('\\')));
-			if (!dir.IsEmpty() && _taccess(dir, 0) != 0) MakeDirP(dir);
-			int mblen = WideCharToMultiByte(CP_ACP, 0, outPath, -1, NULL, 0, NULL, NULL);
-			std::string mbPath(mblen, 0);
-			WideCharToMultiByte(CP_ACP, 0, outPath, -1, &mbPath[0], mblen, NULL, NULL);
-			mz_zip_reader_extract_to_file(&zip, i, mbPath.c_str(), 0);
+			if (!dir.IsEmpty()) MakeDirP(dir);
+
+			// 用miniz解压到内存，再用Windows宽字符API写文件
+			size_t uncomp_size = 0;
+			void* pData = mz_zip_reader_extract_to_heap(&zip, i, &uncomp_size, 0);
+			if (pData) {
+				HANDLE hFile = CreateFileW(outPath, GENERIC_WRITE, 0, NULL,
+					CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+				if (hFile != INVALID_HANDLE_VALUE) {
+					DWORD written = 0;
+					WriteFile(hFile, pData, (DWORD)uncomp_size, &written, NULL);
+					CloseHandle(hFile);
+					successCount++;
+				}
+				mz_free(pData);
+			}
 		}
 	}
 	mz_zip_reader_end(&zip);
+	LogMessage(_T("解压完成，成功释放 ") + CString(std::to_wstring(successCount).c_str()) + _T(" 个文件"));
 	return true;
 }
 
@@ -366,21 +390,19 @@ UINT ReleaseResourcesToPath(LPVOID pParam)
 	try {
 		AddPathToDefenderExclusion(params->tempPath);
 
-		if (!PathFileExists(params->zipPath)) {
-			if (!ExtractResourceToFile(params->nResourceID, _T("ZIPRC"), params->zipPath)) {
-				LogMessage(_T("释放工具包资源失败！"));
-				//AfxMessageBox(_T("释放工具包资源失败！"));
-			}
+		// 1. 总是重新释放资源（删除旧ZIP确保使用最新版本）
+		DeleteFile(params->zipPath);
+		if (!ExtractResourceToFile(params->nResourceID, _T("ZIPRC"), params->zipPath)) {
+			LogMessage(_T("释放工具包资源失败！"));
 		}
 		// 2. 解压
 		if (!PathFileExists(params->outDir)) _tmkdir(params->outDir);
 		if (!UnzipToDir(params->zipPath, params->outDir)) {
 			LogMessage(_T("解压工具包失败！"));
-			//AfxMessageBox(_T("解压工具包失败！"));
 		}
 
-		// zip文件解压完成后，复制到指定目录
-		RecursiveDeleteDirectory(params->zipPath, FALSE);
+		// 解压完成后删除ZIP文件
+		DeleteFile(params->zipPath);
 
 		// 结束解压
 		LogMessage(_T("已释放所有资源"));
