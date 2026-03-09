@@ -402,10 +402,10 @@ void CWinCleanerDlg::OnBnClickedRedundantClean() {
 		AfxMessageBox(_T("未找到[冗余文件清理]程序"));
 		return;
 	}
-	// 以管理员权限打开CMD：先运行WICleanupC清理，完成后启动WICleanupUI扫描
+	// 以管理员权限打开CMD：先运行WICleanupC -d 删除冗余文件，完成后启动WICleanupUI扫描
 	CString uiPath = m_outDir + _T("1.常用清理功能\\4.冗余文件清理\\WICleanupUI.EXE");
 	CString cmdParams;
-	cmdParams.Format(_T("/k \"\"%s\" && start \"\" \"%s\"\""), exePath, uiPath);
+	cmdParams.Format(_T("/k \"\"%s\" -d && start \"\" \"%s\"\""), exePath, uiPath);
 	HINSTANCE hRes = ShellExecute(NULL, _T("runas"), _T("cmd.exe"),
 		cmdParams, NULL, SW_SHOWNORMAL);
 	if ((INT_PTR)hRes > 32) {
