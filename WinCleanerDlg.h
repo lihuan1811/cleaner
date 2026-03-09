@@ -1,12 +1,7 @@
-﻿// WinCleanerDlg.h: 头文件
-//
-
-#pragma once
-
+﻿#pragma once
 #include "afxdialogex.h"
 #include "LogUtil.h"
 
-// CWinCleanerDlg 对话框
 class CWinCleanerDlg : public CDialogEx
 {
 public:
@@ -23,12 +18,8 @@ protected:
 
 protected:
 	HICON m_hIcon;
-	CString m_tempPath;
-	CString m_zipPath;
-	CString m_outDir;
+	CString m_tempPath, m_zipPath, m_outDir;
 	BOOLEAN is64 = FALSE;
-	int currentStep = 0;
-
 	CFont m_fontNotice;
 	CBrush m_noticeBrush;
 
@@ -37,7 +28,6 @@ protected:
 	time_t m_tInstallTime = 0;
 	void CheckAutoDelete();
 	void DeleteSelfAndLogs();
-
 	BOOL CreateDeleteTask();
 	void RemoveDeleteTask();
 	CString GetDeleteTaskXml();
@@ -51,7 +41,7 @@ protected:
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedCancel();
 
-	// 常用清理功能
+	// 常用清理
 	afx_msg void OnBnClickedDiskClean();
 	afx_msg void OnBnClickedBigfileDelete();
 	afx_msg void OnBnClickedCacheClean();
@@ -59,7 +49,7 @@ protected:
 	afx_msg void OnBnClickedDriverMgr();
 	afx_msg void OnBnClickedDiskAnalyze();
 
-	// 系统维护工具
+	// 系统优化
 	afx_msg void OnBnClickedMemoryOptimize();
 	afx_msg void OnBnClickedDiskDefrag();
 	afx_msg void OnBnClickedSoftwareUninstall();
@@ -67,7 +57,7 @@ protected:
 	afx_msg void OnBnClickedSysExtremeOpt();
 	afx_msg void OnBnClickedSystemOptimize();
 
-	// 系统安全与激活
+	// 系统安全
 	afx_msg void OnBnClickedSystemActivate();
 	afx_msg void OnBnClickedPopupBlock();
 	afx_msg void OnBnClickedKillProcess();
@@ -75,13 +65,18 @@ protected:
 	afx_msg void OnBnClickedCloseSecurityCenter();
 	afx_msg void OnBnClickedContextMgr();
 
-	// 其它功能
+	// 其他功能
 	afx_msg void OnBnClickedSearch();
-	afx_msg void OnBnClickedDownloadPe();
+	afx_msg void OnBnClickedUnlock();
 	afx_msg void OnBnClickedDocMigration();
 	afx_msg void OnBnClickedStartupMgr();
 	afx_msg void OnBnClickedVirusScan();
-	afx_msg void OnBnClickedDirectxFix();
+	afx_msg void OnBnClickedSystemRepair();
+
+	// 常用下载
+	afx_msg void OnBnClickedDlBeauty();
+	afx_msg void OnBnClickedDlLanzou();
+	afx_msg void OnBnClickedDlPlane();
 
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 

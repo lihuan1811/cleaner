@@ -88,34 +88,38 @@ BEGIN_MESSAGE_MAP(CWinCleanerDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDOK, &CWinCleanerDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDCANCEL, &CWinCleanerDlg::OnBnClickedCancel)
-	// 常用清理功能
+	// 常用清理
 	ON_BN_CLICKED(IDC_BTN_DISK_CLEAN, &CWinCleanerDlg::OnBnClickedDiskClean)
 	ON_BN_CLICKED(IDC_BTN_BIGFILE_DELETE, &CWinCleanerDlg::OnBnClickedBigfileDelete)
 	ON_BN_CLICKED(IDC_BTN_CACHE_CLEAN, &CWinCleanerDlg::OnBnClickedCacheClean)
 	ON_BN_CLICKED(IDC_BTN_REDUNDANT_CLEAN, &CWinCleanerDlg::OnBnClickedRedundantClean)
 	ON_BN_CLICKED(IDC_BTN_DRIVER_MGR, &CWinCleanerDlg::OnBnClickedDriverMgr)
 	ON_BN_CLICKED(IDC_BTN_DISK_ANALYZE, &CWinCleanerDlg::OnBnClickedDiskAnalyze)
-	// 系统维护工具
+	// 系统优化
 	ON_BN_CLICKED(IDC_BTN_MEMORY_OPTIMIZE, &CWinCleanerDlg::OnBnClickedMemoryOptimize)
 	ON_BN_CLICKED(IDC_BTN_DISK_DEFRAG, &CWinCleanerDlg::OnBnClickedDiskDefrag)
 	ON_BN_CLICKED(IDC_BTN_SOFTWARE_UNINSTALL, &CWinCleanerDlg::OnBnClickedSoftwareUninstall)
 	ON_BN_CLICKED(IDC_BTN_SYS_SETTINGS_OPT, &CWinCleanerDlg::OnBnClickedSysSettingsOpt)
 	ON_BN_CLICKED(IDC_BTN_SYS_EXTREME_OPT, &CWinCleanerDlg::OnBnClickedSysExtremeOpt)
 	ON_BN_CLICKED(IDC_BTN_SYSTEM_OPTIMIZE, &CWinCleanerDlg::OnBnClickedSystemOptimize)
-	// 系统安全与激活
+	// 系统安全
 	ON_BN_CLICKED(IDC_BTN_SYSTEM_ACTIVATE, &CWinCleanerDlg::OnBnClickedSystemActivate)
 	ON_BN_CLICKED(IDC_BTN_POPUP_BLOCK, &CWinCleanerDlg::OnBnClickedPopupBlock)
 	ON_BN_CLICKED(IDC_BTN_KILL_PROCESS, &CWinCleanerDlg::OnBnClickedKillProcess)
 	ON_BN_CLICKED(IDC_BTN_DISABLE_UPDATE, &CWinCleanerDlg::OnBnClickedDisableUpdate)
 	ON_BN_CLICKED(IDC_BTN_CLOSE_SECURITY_CENTER, &CWinCleanerDlg::OnBnClickedCloseSecurityCenter)
 	ON_BN_CLICKED(IDC_BTN_CONTEXT_MGR, &CWinCleanerDlg::OnBnClickedContextMgr)
-	// 其它功能
+	// 其他功能
 	ON_BN_CLICKED(IDC_BTN_SEARCH, &CWinCleanerDlg::OnBnClickedSearch)
-	ON_BN_CLICKED(IDC_BTN_DOWNLOAD_PE, &CWinCleanerDlg::OnBnClickedDownloadPe)
+	ON_BN_CLICKED(IDC_BTN_UNLOCK, &CWinCleanerDlg::OnBnClickedUnlock)
 	ON_BN_CLICKED(IDC_BTN_DOC_MIGRATION, &CWinCleanerDlg::OnBnClickedDocMigration)
 	ON_BN_CLICKED(IDC_BTN_STARTUP_MGR, &CWinCleanerDlg::OnBnClickedStartupMgr)
 	ON_BN_CLICKED(IDC_BTN_VIRUS_SCAN, &CWinCleanerDlg::OnBnClickedVirusScan)
-	ON_BN_CLICKED(IDC_BTN_DIRECTX_FIX, &CWinCleanerDlg::OnBnClickedDirectxFix)
+	ON_BN_CLICKED(IDC_BTN_SYSTEM_REPAIR, &CWinCleanerDlg::OnBnClickedSystemRepair)
+	// 常用下载
+	ON_BN_CLICKED(IDC_BTN_DL_BEAUTY, &CWinCleanerDlg::OnBnClickedDlBeauty)
+	ON_BN_CLICKED(IDC_BTN_DL_LANZOU, &CWinCleanerDlg::OnBnClickedDlLanzou)
+	ON_BN_CLICKED(IDC_BTN_DL_PLANE, &CWinCleanerDlg::OnBnClickedDlPlane)
 	ON_WM_DESTROY()
 	ON_WM_TIMER()
 	ON_WM_SIZING()
@@ -825,7 +829,7 @@ void CWinCleanerDlg::OnBnClickedSearch() {
 	}
 }
 
-void CWinCleanerDlg::OnBnClickedDownloadPe() {
+void CWinCleanerDlg::OnBnClickedUnlock() {
 	LogMessage(_T("开始 [解锁]"));
 	CString fileName = _T("IObitUnlocker.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\2.文件解锁\\") + fileName;
@@ -906,29 +910,27 @@ void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	}
 }
 
-void CWinCleanerDlg::OnBnClickedDirectxFix()
+void CWinCleanerDlg::OnBnClickedSystemRepair()
 {
-	LogMessage(_T("开始 [DirectX修复]"));
+	LogMessage(_T("开始 [系统修复]"));
 	CString fileName = _T("FixWin.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\6.系统修复\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
-		LogMessage(_T("未找到 ") + MaskFileName(fileName));
-		AfxMessageBox(_T("未找到[DirectX修复]程序"));
+		AfxMessageBox(_T("未找到[系统修复]程序"));
 		return;
 	}
 	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("DirectX修复");
+	si.lpTitle = _T("系统修复");
 	PROCESS_INFORMATION pi;
 	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
 	{
-		LogMessage(_T("已启动DirectX修复"));
+		LogMessage(_T("已启动系统修复"));
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
-		LogMessage(_T("已完成 [DirectX修复]"));
 	}
 	else
 	{
-		AfxMessageBox(_T("无法启动[DirectX修复]程序"));
+		AfxMessageBox(_T("无法启动[系统修复]程序"));
 	}
 }
 
@@ -954,6 +956,28 @@ void CWinCleanerDlg::OnBnClickedVirusScan()
 	{
 		AfxMessageBox(_T("无法启动[病毒查杀]程序"));
 	}
+}
+
+// ============================================================
+// 常用下载
+// ============================================================
+
+void CWinCleanerDlg::OnBnClickedDlBeauty()
+{
+	LogMessage(_T("打开美化插件下载"));
+	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/yj15tJ3U"), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void CWinCleanerDlg::OnBnClickedDlLanzou()
+{
+	LogMessage(_T("打开蓝奏云工具下载"));
+	ShellExecute(NULL, _T("open"), _T("https://yype.lanzoul.com/b00zy94laf"), NULL, NULL, SW_SHOWNORMAL);
+}
+
+void CWinCleanerDlg::OnBnClickedDlPlane()
+{
+	LogMessage(_T("打开小飞机工具下载"));
+	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/tLXtuZmr"), NULL, NULL, SW_SHOWNORMAL);
 }
 
 HBRUSH CWinCleanerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)

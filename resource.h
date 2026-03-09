@@ -17,7 +17,7 @@
 // 公告栏
 #define IDC_STATIC_NOTICE               1050
 
-// 常用清理功能
+// 常用清理
 #define IDC_GROUP_CLEAN                 1000
 #define IDC_BTN_DISK_CLEAN              1001
 #define IDC_EDIT_CARDNO                 1001
@@ -28,7 +28,7 @@
 #define IDC_BTN_DRIVER_MGR              1005
 #define IDC_BTN_DISK_ANALYZE            1011
 
-// 系统维护工具
+// 系统优化
 #define IDC_GROUP_MAINTAIN              1010
 #define IDC_BTN_MEMORY_OPTIMIZE         1060
 #define IDC_BTN_DISK_DEFRAG             1061
@@ -37,7 +37,7 @@
 #define IDC_BTN_SYS_EXTREME_OPT        1063
 #define IDC_BTN_SYSTEM_OPTIMIZE         1037
 
-// 系统安全与激活
+// 系统安全
 #define IDC_GROUP_SECURITY              1020
 #define IDC_BTN_SYSTEM_ACTIVATE         1024
 #define IDC_BTN_POPUP_BLOCK             1015
@@ -46,14 +46,20 @@
 #define IDC_BTN_CLOSE_SECURITY_CENTER   1022
 #define IDC_BTN_CONTEXT_MGR             1033
 
-// 其它功能
+// 其他功能
 #define IDC_GROUP_OTHER                 1030
 #define IDC_BTN_SEARCH                  1025
-#define IDC_BTN_DOWNLOAD_PE             1035
+#define IDC_BTN_UNLOCK                  1035
 #define IDC_BTN_DOC_MIGRATION           1036
 #define IDC_BTN_STARTUP_MGR             1032
 #define IDC_BTN_VIRUS_SCAN              1066
-#define IDC_BTN_DIRECTX_FIX             1064
+#define IDC_BTN_SYSTEM_REPAIR           1064
+
+// 常用下载
+#define IDC_GROUP_DOWNLOAD              1040
+#define IDC_BTN_DL_BEAUTY               1070
+#define IDC_BTN_DL_LANZOU               1071
+#define IDC_BTN_DL_PLANE                1072
 
 // 资源
 #define IDR_ZIPRC_TOOLS                 2002
@@ -63,13 +69,11 @@
 #define IDC_BTN_CLEAN                   3002
 #define IDC_LIST_FILES                  3003
 
-// Next default values for new objects
-//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1070
+#define _APS_NEXT_CONTROL_VALUE         1080
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif
