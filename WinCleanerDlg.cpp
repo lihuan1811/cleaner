@@ -510,6 +510,9 @@ void CWinCleanerDlg::OnBnClickedDiskDefrag()
 	CString fileName = _T("SmartDefrag-Pro-v10.3.0.435.exe");
 	CString exePath = m_outDir + _T("2.系统优化\\7.碎片整理\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
+		exePath = m_outDir + _T("2.系统维护工具\\2.磁盘优化\\") + fileName;
+	}
+	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[碎片整理]程序"));
 		return;
 	}
@@ -756,7 +759,12 @@ void CWinCleanerDlg::OnBnClickedCloseSecurityCenter()
 	CString exePath = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\") + fileName;
 	CString exeDir = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\");
 	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[关闭安全中心]工具"));
+		// fallback: 3.系统安全目录
+		exePath = m_outDir + _T("3.系统安全\\5.关闭安全中心1\\cde\\") + fileName;
+		exeDir = m_outDir + _T("3.系统安全\\5.关闭安全中心1\\cde\\");
+	}
+	if (_taccess(exePath, 0) != 0) {
+		AfxMessageBox(_T("未找到[关闭安全中心]工具\n路径: ") + exePath);
 		return;
 	}
 	ShellExecute(NULL, _T("runas"), exePath, NULL, exeDir, SW_SHOWNORMAL);
