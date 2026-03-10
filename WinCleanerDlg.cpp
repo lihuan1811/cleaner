@@ -1003,55 +1003,36 @@ void CWinCleanerDlg::OnBnClickedDocMigration()
 
 void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	LogMessage(_T("开始 [启动项管理]"));
-	CString primaryExePath = m_outDir + _T("4.其他功能\\4.启动项管理\\火绒启动项管理.exe");
-	CString fallbackExePath = m_outDir + _T("系统维护工具\\启动项管理\\AutoRuns\\Autoruns.exe");
-	if (!EnsureToolExtracted(primaryExePath, fallbackExePath)) {
+	CString exePath = m_outDir + _T("系统维护工具\\启动项管理\\AutoRuns\\Autoruns.exe");
+	CString huorongRuntimePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\Huorong");
+	if (!EnsureToolExtracted(exePath, huorongRuntimePath)) {
 		AfxMessageBox(_T("未找到启动项管理程序"));
 		return;
 	}
+	if (!PrepareHuorongRuntime()) {
+		AfxMessageBox(_T("启动项管理运行环境准备失败"));
+		return;
+	}
 
-	auto launchStartupMgr = [&](const CString& exePath, const CString& title, bool checkEarlyExit) -> bool {
-		CString exeDir = GetParentDir(exePath);
-		CString commandLine = exePath;
-		STARTUPINFO si = { sizeof(si) };
-		si.lpTitle = const_cast<LPTSTR>(title.GetString());
-		PROCESS_INFORMATION pi = {};
-		if (!CreateProcess(commandLine.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi)) {
-			commandLine.ReleaseBuffer();
-			return false;
-		}
+	CString exeDir = GetParentDir(exePath);
+	CString commandLine = exePath;
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("启动项管理");
+	PROCESS_INFORMATION pi = {};
+	if (CreateProcess(commandLine.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi))
+	{
 		commandLine.ReleaseBuffer();
-
-		bool exitedEarly = false;
-		DWORD exitCode = STILL_ACTIVE;
-		if (checkEarlyExit && WaitForSingleObject(pi.hProcess, 1500) == WAIT_OBJECT_0) {
-			exitedEarly = true;
-			GetExitCodeProcess(pi.hProcess, &exitCode);
-		}
-
+		LogMessage(_T("已启动 启动项管理(旧版)"));
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
-
-		if (exitedEarly) {
-			CString errMsg;
-			errMsg.Format(_T("%s启动后快速退出，退出码: %lu"), title.GetString(), exitCode);
-			LogMessage(errMsg);
-			return false;
-		}
-
-		LogMessage(CString(_T("已启动 ")) + title);
-		return true;
-	};
-
-	if (launchStartupMgr(primaryExePath, _T("启动项管理"), true)) {
 		return;
 	}
 
-	if (_taccess(fallbackExePath, 0) == 0 && PrepareHuorongRuntime() &&
-		launchStartupMgr(fallbackExePath, _T("启动项管理(旧版回退)"), false)) {
-		return;
-	}
-
+	commandLine.ReleaseBuffer();
+	DWORD err = GetLastError();
+	CString errMsg;
+	errMsg.Format(_T("旧版启动项管理启动失败，错误码: %lu"), err);
+	LogMessage(errMsg);
 	AfxMessageBox(_T("无法启动启动项管理程序"));
 }
 
