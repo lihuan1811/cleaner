@@ -757,7 +757,7 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
-	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\火绒弹窗拦截独立版v5.0.71.1\\弹窗拦截.exe");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlock64\\PopBlock.exe");
 	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
@@ -961,7 +961,7 @@ void CWinCleanerDlg::OnBnClickedDocMigration()
 
 void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	LogMessage(_T("开始 [启动项管理]"));
-	CString fileName = _T("火绒启动项管理.exe");
+	CString fileName = _T("火绒启动项管理_v6.0.5.5.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\4.启动项管理\\") + fileName;
 	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到启动项管理程序"));
