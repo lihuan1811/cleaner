@@ -757,60 +757,14 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
-	CString oldExePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\PopBlock.exe");
-	CString huorongRuntimePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\Huorong");
-	CString newExePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\火绒弹窗拦截独立版v5.0.71.1\\弹窗拦截.exe");
-	if (!EnsureToolExtracted(oldExePath, huorongRuntimePath)) {
+	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\火绒弹窗拦截独立版v5.0.71.1\\弹窗拦截.exe");
+	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
-	if (!PrepareHuorongRuntime()) {
-		AfxMessageBox(_T("弹窗拦截运行环境准备失败"));
-		return;
-	}
-
-	auto launchPopup = [&](const CString& exePath, const CString& title, bool checkEarlyExit) -> bool {
-		CString exeDir = GetParentDir(exePath);
-		CString commandLine = exePath;
-		STARTUPINFO si = { sizeof(si) };
-		si.lpTitle = const_cast<LPTSTR>(title.GetString());
-		PROCESS_INFORMATION pi = {};
-		if (!CreateProcess(commandLine.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi)) {
-			commandLine.ReleaseBuffer();
-			return false;
-		}
-		commandLine.ReleaseBuffer();
-
-		bool exitedEarly = false;
-		DWORD exitCode = STILL_ACTIVE;
-		if (checkEarlyExit && WaitForSingleObject(pi.hProcess, 1500) == WAIT_OBJECT_0) {
-			exitedEarly = true;
-			GetExitCodeProcess(pi.hProcess, &exitCode);
-		}
-
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-
-		if (exitedEarly) {
-			CString errMsg;
-			errMsg.Format(_T("%s启动后快速退出，退出码: %lu"), title.GetString(), exitCode);
-			LogMessage(errMsg);
-			return false;
-		}
-
-		LogMessage(CString(_T("已启动 ")) + title);
-		return true;
-	};
-
-	if (launchPopup(oldExePath, _T("弹窗拦截(旧版)"), true)) {
-		return;
-	}
-
-	if (_taccess(newExePath, 0) == 0 && launchPopup(newExePath, _T("弹窗拦截(新版回退)"), true)) {
-		return;
-	}
-
-	AfxMessageBox(_T("无法启动弹窗拦截程序"));
+	CString exeDir = GetParentDir(exePath);
+	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+	LogMessage(_T("已启动弹窗拦截"));
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
@@ -1007,56 +961,15 @@ void CWinCleanerDlg::OnBnClickedDocMigration()
 
 void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	LogMessage(_T("开始 [启动项管理]"));
-	CString exePath = m_outDir + _T("系统维护工具\\启动项管理\\AutoRuns\\Autoruns.exe");
-	CString huorongRuntimePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\Huorong");
-	CString fallbackExePath = m_outDir + _T("4.其他功能\\4.启动项管理\\火绒启动项管理.exe");
-	if (!EnsureToolExtracted(exePath, huorongRuntimePath)) {
+	CString fileName = _T("火绒启动项管理.exe");
+	CString exePath = m_outDir + _T("4.其他功能\\4.启动项管理\\") + fileName;
+	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到启动项管理程序"));
 		return;
 	}
-	if (!PrepareHuorongRuntime()) {
-		AfxMessageBox(_T("启动项管理运行环境准备失败"));
-		return;
-	}
-
-	auto launchStartupMgr = [&](const CString& path, const CString& title, bool checkEarlyExit) -> bool {
-		CString exeDir = GetParentDir(path);
-		CString commandLine = path;
-		STARTUPINFO si = { sizeof(si) };
-		si.lpTitle = const_cast<LPTSTR>(title.GetString());
-		PROCESS_INFORMATION pi = {};
-		if (!CreateProcess(commandLine.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi)) {
-			commandLine.ReleaseBuffer();
-			return false;
-		}
-		commandLine.ReleaseBuffer();
-
-		DWORD exitCode = STILL_ACTIVE;
-		if (checkEarlyExit && WaitForSingleObject(pi.hProcess, 1500) == WAIT_OBJECT_0) {
-			GetExitCodeProcess(pi.hProcess, &exitCode);
-			CloseHandle(pi.hProcess);
-			CloseHandle(pi.hThread);
-			CString errMsg;
-			errMsg.Format(_T("%s启动后快速退出，退出码: %lu"), title.GetString(), exitCode);
-			LogMessage(errMsg);
-			return false;
-		}
-
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-		LogMessage(CString(_T("已启动 ")) + title);
-		return true;
-	};
-
-	if (launchStartupMgr(exePath, _T("启动项管理(旧版)"), true)) {
-		return;
-	}
-
-	if (_taccess(fallbackExePath, 0) == 0 && launchStartupMgr(fallbackExePath, _T("启动项管理(新版回退)"), true)) {
-		return;
-	}
-
-	AfxMessageBox(_T("无法启动启动项管理程序"));
+	CString exeDir = GetParentDir(exePath);
+	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+	LogMessage(_T("已启动启动项管理"));
 }
 
 void CWinCleanerDlg::OnBnClickedSystemRepair()
