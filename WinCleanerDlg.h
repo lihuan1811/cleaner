@@ -32,6 +32,7 @@ protected:
 	void DeleteSelfAndLogs();
 	BOOL EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath = _T(""), DWORD waitMs = 5000);
 	CString GetParentDir(const CString& filePath) const;
+	BOOL PrepareHuorongRuntime();
 	BOOL CreateDeleteTask();
 	void RemoveDeleteTask();
 	CString GetDeleteTaskXml();
