@@ -958,7 +958,7 @@ void CWinCleanerDlg::OnBnClickedSystemRepair()
 void CWinCleanerDlg::OnBnClickedVirusScan()
 {
 	LogMessage(_T("开始 [病毒查杀]"));
-	CString fileName = _T("Synaptics 蠕虫病毒专杀.exe");
+	CString fileName = _T("蠕虫病毒专杀.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\5.病毒查杀\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[病毒查杀]程序"));
