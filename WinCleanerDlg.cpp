@@ -924,27 +924,11 @@ void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	CString fileName = _T("火绒启动项管理.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\4.启动项管理\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
-		// 兼容旧版
-		fileName = _T("Autoruns.exe");
-		exePath = m_outDir + _T("系统维护工具\\启动项管理\\AutoRuns\\") + fileName;
-	}
-	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到启动项管理程序"));
 		return;
 	}
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("启动项管理");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		LogMessage(_T("已启动启动项管理"));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-	}
-	else
-	{
-		AfxMessageBox(_T("无法启动启动项管理程序"));
-	}
+	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
+	LogMessage(_T("已启动启动项管理"));
 }
 
 void CWinCleanerDlg::OnBnClickedSystemRepair()
@@ -974,25 +958,14 @@ void CWinCleanerDlg::OnBnClickedSystemRepair()
 void CWinCleanerDlg::OnBnClickedVirusScan()
 {
 	LogMessage(_T("开始 [病毒查杀]"));
-	CString fileName = _T("Synaptics 蠊虫病毒专杀.exe");
+	CString fileName = _T("Synaptics 蠕虫病毒专杀.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\5.病毒查杀\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[病毒查杀]程序"));
 		return;
 	}
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("病毒查杀");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		LogMessage(_T("已启动病毒查杀"));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-	}
-	else
-	{
-		AfxMessageBox(_T("无法启动[病毒查杀]程序"));
-	}
+	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
+	LogMessage(_T("已启动病毒查杀"));
 }
 
 // ============================================================
