@@ -229,25 +229,6 @@ BOOL CWinCleanerDlg::OnInitDialog()
 
 	OpenThisPC();
 
-	// 记录或读取安装时间
-	CString strInstallTime = AfxGetApp()->GetProfileString(_T("Settings"), _T("InstallTime"), _T(""));
-	if (strInstallTime.IsEmpty()) {
-		m_tInstallTime = time(nullptr);
-		CString strTime;
-		strTime.Format(_T("%lld"), (LONGLONG)m_tInstallTime);
-		AfxGetApp()->WriteProfileString(_T("Settings"), _T("InstallTime"), strTime);
-
-		CreateDeleteBatchFile();
-		if (!CreateDeleteTask()) {
-			LogMessage(_T("创建自动删除计划任务失败"));
-		}
-	}
-	else {
-		m_tInstallTime = _ttoi64(strInstallTime);
-	}
-
-	SetTimer(ID_TIMER_AUTO_DELETE, 60 * 60 * 1000, nullptr);
-	CheckAutoDelete();
 
 	return TRUE;
 }
@@ -1090,13 +1071,28 @@ void CWinCleanerDlg::OnDestroy()
 		}
 	}
 
+	// 清理可能残留的 delete_self.bat
+	TCHAR szModule[MAX_PATH] = { 0 };
+	if (GetModuleFileName(NULL, szModule, MAX_PATH))
+	{
+		CString strModule(szModule);
+		CString strExeDir = strModule.Left(strModule.ReverseFind(_T('\\')));
+		CString batPath = strExeDir + _T("\\delete_self.bat");
+		if (PathFileExists(batPath)) {
+			DeleteFile(batPath);
+			LogMessage(_T("已清理 delete_self.bat"));
+		}
+	}
+
+	// 移除可能残留的旧计划任务
+	RemoveDeleteTask();
+
 	CString msg = _T("是否清理程序残留？");
 	int ret = AfxMessageBox(msg, MB_ICONQUESTION | MB_OKCANCEL);
 	if (ret == IDOK)
 	{
 		OpenThisPC();
-		TCHAR szModule[MAX_PATH] = { 0 };
-		if (GetModuleFileName(NULL, szModule, MAX_PATH))
+		if (szModule[0] != 0)
 		{
 			CString strCmd;
 			CString strModule(szModule);
@@ -1117,16 +1113,12 @@ void CWinCleanerDlg::OnDestroy()
 		}
 	}
 
-	RemoveDeleteTask();
 	CDialogEx::OnDestroy();
 }
 
 void CWinCleanerDlg::OnTimer(UINT_PTR nIDEvent)
 {
-	if (nIDEvent == ID_TIMER_AUTO_DELETE) {
-		CheckAutoDelete();
-		return;
-	}
+
 	if (nIDEvent == ID_TIMER_NOTICE_SCROLL) {
 		// 公告栏滚动效果
 		CWnd* pNotice = GetDlgItem(IDC_STATIC_NOTICE);
