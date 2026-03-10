@@ -757,14 +757,39 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
-	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlock64\\PopBlock.exe");
+
+	// 根据系统架构选择对应版本
+	CString archDir = is64 ? _T("HuorongPopBlockX64") : _T("HuorongPopBlockX86");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\") + archDir + _T("\\PopBlock.exe");
+
+	if (_taccess(exePath, 0) != 0) {
+		// 兼容旧路径
+		exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlock64\\PopBlock.exe");
+	}
+
 	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
+
+	LogMessage(_T("使用弹窗拦截版本: ") + archDir);
 	CString exeDir = GetParentDir(exePath);
-	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
-	LogMessage(_T("已启动弹窗拦截"));
+	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	sei.lpVerb = _T("runas");
+	sei.lpFile = exePath;
+	sei.lpDirectory = exeDir;
+	sei.nShow = SW_SHOWNORMAL;
+	if (ShellExecuteEx(&sei)) {
+		LogMessage(_T("已启动弹窗拦截"));
+	} else {
+		DWORD err = GetLastError();
+		CString msg;
+		msg.Format(_T("弹窗拦截启动失败，错误码: %lu"), err);
+		LogMessage(msg);
+		// 回退：不提权直接启动
+		ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+		LogMessage(_T("已尝试以普通权限启动弹窗拦截"));
+	}
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
