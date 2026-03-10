@@ -30,6 +30,8 @@ protected:
 	time_t m_tInstallTime = 0;
 	void CheckAutoDelete();
 	void DeleteSelfAndLogs();
+	BOOL EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath = _T(""), DWORD waitMs = 5000);
+	CString GetParentDir(const CString& filePath) const;
 	BOOL CreateDeleteTask();
 	void RemoveDeleteTask();
 	CString GetDeleteTaskXml();

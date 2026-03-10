@@ -290,6 +290,40 @@ HCURSOR CWinCleanerDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+CString CWinCleanerDlg::GetParentDir(const CString& filePath) const
+{
+	int slashPos = filePath.ReverseFind(_T('\\'));
+	if (slashPos == -1) {
+		return CString();
+	}
+	return filePath.Left(slashPos + 1);
+}
+
+BOOL CWinCleanerDlg::EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath, DWORD waitMs)
+{
+	auto exists = [](const CString& path) -> bool {
+		return !path.IsEmpty() && _taccess(path, 0) == 0;
+	};
+
+	DWORD startTick = GetTickCount();
+	while (GetTickCount() - startTick < waitMs) {
+		if (exists(primaryPath) || exists(fallbackPath)) {
+			return TRUE;
+		}
+		Sleep(200);
+	}
+
+	LogMessage(_T("工具仍未释放完成，尝试同步重新释放资源"));
+	ReleaseParams params;
+	params.nResourceID = IDR_ZIPRC_TOOLS;
+	params.zipPath = m_tempPath + _T("tools.zip");
+	params.outDir = m_outDir;
+	params.tempPath = m_tempPath;
+	ReleaseResourcesToPath(&params);
+
+	return exists(primaryPath) || exists(fallbackPath);
+}
+
 void CWinCleanerDlg::OnBnClickedOk()
 {
 	CDialogEx::OnOK();
@@ -692,30 +726,23 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
-	// 新版弹窗拦截
-	CString fileName = _T("弹窗拦截.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\火绒弹窗拦截独立版v5.0.71.1\\") + fileName;
-	if (_taccess(exePath, 0) != 0) {
-		// 兼容旧版路径
-		fileName = _T("PopBlock.exe");
-		CString sourcePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\");
-		CString destDir2 = _T("D:\\ProgramData\\Huorong\\");
-		if (PathFileExists(destDir2)) {
-			RecursiveDeleteDirectory(destDir2, FALSE);
-		}
-		MakeDirP(destDir2);
-		SetDirectoryHidden(_T("D:\\ProgramData\\"));
-		CopyDirectoryContent(sourcePath, destDir2, FALSE);
-		exePath = destDir2 + fileName;
-	}
-	if (_taccess(exePath, 0) != 0) {
+	CString primaryExePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\火绒弹窗拦截独立版v5.0.71.1\\弹窗拦截.exe");
+	CString fallbackExePath = m_outDir + _T("系统维护工具\\弹窗拦截\\HRSoft\\PopBlock\\PopBlock.exe");
+	if (!EnsureToolExtracted(primaryExePath, fallbackExePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
+
+	CString exePath = primaryExePath;
+	if (_taccess(exePath, 0) != 0) {
+		exePath = fallbackExePath;
+	}
+	CString exeDir = GetParentDir(exePath);
+
 	STARTUPINFO si = { sizeof(si) };
 	si.lpTitle = _T("弹窗拦截");
 	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi))
 	{
 		LogMessage(_T("已启动弹窗拦截"));
 		CloseHandle(pi.hProcess);
@@ -723,6 +750,10 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	}
 	else
 	{
+		DWORD err = GetLastError();
+		CString errMsg;
+		errMsg.Format(_T("启动弹窗拦截失败，错误码: %lu"), err);
+		LogMessage(errMsg);
 		AfxMessageBox(_T("无法启动弹窗拦截程序"));
 	}
 }
@@ -923,12 +954,28 @@ void CWinCleanerDlg::OnBnClickedStartupMgr() {
 	LogMessage(_T("开始 [启动项管理]"));
 	CString fileName = _T("火绒启动项管理.exe");
 	CString exePath = m_outDir + _T("4.其他功能\\4.启动项管理\\") + fileName;
-	if (_taccess(exePath, 0) != 0) {
+	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到启动项管理程序"));
 		return;
 	}
-	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
-	LogMessage(_T("已启动启动项管理"));
+	CString exeDir = GetParentDir(exePath);
+	STARTUPINFO si = { sizeof(si) };
+	si.lpTitle = _T("启动项管理");
+	PROCESS_INFORMATION pi;
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi))
+	{
+		LogMessage(_T("已启动启动项管理"));
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+	}
+	else
+	{
+		DWORD err = GetLastError();
+		CString errMsg;
+		errMsg.Format(_T("启动项管理启动失败，错误码: %lu"), err);
+		LogMessage(errMsg);
+		AfxMessageBox(_T("无法启动启动项管理程序"));
+	}
 }
 
 void CWinCleanerDlg::OnBnClickedSystemRepair()
