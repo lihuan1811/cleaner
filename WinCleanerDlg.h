@@ -25,20 +25,12 @@ protected:
 	CString m_strNoticeText;
 	int m_nNoticeScrollPos = 0;
 
-	enum { ID_TIMER_AUTO_DELETE = 1001, ID_TIMER_NOTICE_SCROLL = 1002 };
-	static const DWORD AUTO_DELETE_SECONDS = 30 * 24 * 60 * 60;
-	time_t m_tInstallTime = 0;
-	void CheckAutoDelete();
-	void DeleteSelfAndLogs();
+	enum { ID_TIMER_NOTICE_SCROLL = 1002 };
 	BOOL EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath = _T(""), DWORD waitMs = 5000);
 	CString GetParentDir(const CString& filePath) const;
 	BOOL PrepareHuorongRuntime();
-	BOOL CreateDeleteTask();
 	void RemoveDeleteTask();
-	CString GetDeleteTaskXml();
 	CString GetSelfPath();
-	CString GetDeleteBatchPath();
-	void CreateDeleteBatchFile();
 
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
