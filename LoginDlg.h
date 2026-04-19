@@ -19,16 +19,9 @@ protected:
 
     DECLARE_MESSAGE_MAP()
 
-    CEdit m_editCardNo;       // 卡密输入框
-    CComboBox m_comboService; // 客服选择框
-    CButton m_btnLogin;       // 登录按钮
-
-    CFont m_fontTitle;        // 标题字体
-    CFont m_fontLabel;        // 标签字体
-    CFont m_fontEdit;         // 输入框字体
-    CFont m_fontBtn;          // 按钮字体
-    CBrush m_bgBrush;         // 背景画刷
-    CBrush m_editBrush;       // 输入框画刷
+    CEdit m_editCardNo;
+    CComboBox m_comboService;
+    CButton m_btnLogin;
 
 public:
     afx_msg void OnEnChangeEditCardno();

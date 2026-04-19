@@ -22,8 +22,6 @@ protected:
 	BOOLEAN is64 = FALSE;
 	CFont m_fontNotice;
 	CBrush m_noticeBrush;
-	CString m_strNoticeText;
-	int m_nNoticeScrollPos = 0;
 
 	enum { ID_TIMER_NOTICE_SCROLL = 1002 };
 	BOOL EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath = _T(""), DWORD waitMs = 5000);

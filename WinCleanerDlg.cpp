@@ -173,10 +173,17 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		m_noticeBrush.CreateSolidBrush(RGB(255, 240, 240));
 	}
 
-	// 公告栏轮播文字
-	m_strNoticeText = _T("★ 正在为您远程服务，请不要离开电脑，及时回复平台消息！ ★ 工程师专用工具 - 系统维护专家 ★      ");
-	m_nNoticeScrollPos = 0;
-	SetTimer(ID_TIMER_NOTICE_SCROLL, 150, nullptr);
+	// 公告栏固定文字（不滚屏）
+	CWnd* pNoticeCtrl = GetDlgItem(IDC_STATIC_NOTICE);
+	if (pNoticeCtrl) {
+		pNoticeCtrl->SetWindowText(_T("正在为您远程服务，请勿操作电脑"));
+	}
+
+	// 隐藏美化插件下载按钮
+	CWnd* pBtnBeauty = GetDlgItem(IDC_BTN_DL_BEAUTY);
+	if (pBtnBeauty) {
+		pBtnBeauty->ShowWindow(SW_HIDE);
+	}
 
 	// 检测系统架构
 	SYSTEM_INFO si;
@@ -580,18 +587,16 @@ void CWinCleanerDlg::OnBnClickedMemoryOptimize()
 
 void CWinCleanerDlg::OnBnClickedDiskDefrag()
 {
-	LogMessage(_T("开始 [碎片整理]"));
-	CString fileName = _T("SmartDefrag-Pro-v10.3.0.435.exe");
-	CString exePath = m_outDir + _T("2.系统优化\\7.碎片整理\\") + fileName;
+	LogMessage(_T("开始 [磁盘优化]"));
+	CString fileName = _T("SmartDefragPortable.exe");
+	CString exePath = m_outDir + _T("2.系统维护工具\\2.磁盘优化\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
-		exePath = m_outDir + _T("2.系统维护工具\\2.磁盘优化\\") + fileName;
-	}
-	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[碎片整理]程序"));
+		AfxMessageBox(_T("未找到[磁盘优化]程序"));
 		return;
 	}
-	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
-	LogMessage(_T("已启动碎片整理"));
+	CString exeDir = GetParentDir(exePath);
+	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+	LogMessage(_T("已启动磁盘优化"));
 }
 
 void CWinCleanerDlg::OnBnClickedSoftwareUninstall() {
@@ -700,21 +705,12 @@ void CWinCleanerDlg::OnBnClickedSystemOptimize()
 
 void CWinCleanerDlg::OnBnClickedSystemActivate() {
 	LogMessage(_T("开始 [系统激活]"));
-	// 先尝试新路径
-	CString fileName = _T("系统激活.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\1.系统激活\\") + fileName;
-	CString exeDir = m_outDir + _T("3.系统安全与激活\\1.系统激活\\");
+	CString fileName = _T("HKM.exe");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\1.系统激活\\HEU KMS Activator 63.3.3\\") + fileName;
+	CString exeDir = m_outDir + _T("3.系统安全与激活\\1.系统激活\\HEU KMS Activator 63.3.3\\");
 	if (_taccess(exePath, 0) != 0) {
-		// 兼容旧路径：释放旧的激活资源
-		ReleaseParams* pParams = new ReleaseParams();
-		pParams->nResourceID = IDR_ZIPRC1;
-		pParams->zipPath = m_tempPath + _T("ac.zip");
-		pParams->outDir = m_outDir;
-		pParams->tempPath = m_tempPath;
-		ReleaseResourcesToPath(pParams);
-		fileName = _T("HEU_KMS_Activator_v62.0.0.exe");
-		exePath = m_outDir + _T("系统激活\\") + fileName;
-		exeDir = m_outDir + _T("系统激活\\");
+		exePath = m_outDir + _T("3.系统安全与激活\\1.系统激活\\") + fileName;
+		exeDir = m_outDir + _T("3.系统安全与激活\\1.系统激活\\");
 	}
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到[系统激活]程序"));
@@ -739,27 +735,26 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
 
-	// 根据系统架构选择对应版本
-	CString archDir = is64 ? _T("HuorongPopBlockX64") : _T("HuorongPopBlockX86");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\") + archDir + _T("\\prod.exe");
-	CString exeDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\") + archDir + _T("\\");
+	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlockX64\\PopBlock.exe");
+	CString exeDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlockX64\\");
 
 	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	LogMessage(_T("使用弹窗拦截版本: ") + archDir);
 	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
-	LogMessage(_T("已启动弹窗拦截"));
+	LogMessage(_T("已启动弹窗拦截（后台运行）"));
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
 	LogMessage(_T("开始 [查杀流氓软件]"));
 	CString fileName = _T("SoftCnKiller.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\3.查杀流氓软件\\") + fileName;
+	CString exePath = m_outDir + _T("3.系统安全与激活\\3.查杀流氓软件\\SoftCnKiller v2.81\\") + fileName;
+	CString exeDir = m_outDir + _T("3.系统安全与激活\\3.查杀流氓软件\\SoftCnKiller v2.81\\");
 	if (_taccess(exePath, 0) != 0) {
-		exePath = m_outDir + _T("系统维护工具\\查杀流氓软件\\") + fileName;
+		exePath = m_outDir + _T("3.系统安全与激活\\3.查杀流氓软件\\") + fileName;
+		exeDir = m_outDir + _T("3.系统安全与激活\\3.查杀流氓软件\\");
 	}
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到查杀流氓软件程序"));
@@ -768,7 +763,7 @@ void CWinCleanerDlg::OnBnClickedKillProcess() {
 	STARTUPINFO si = { sizeof(si) };
 	si.lpTitle = _T("查杀流氓软件");
 	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi))
 	{
 		LogMessage(_T("已启动查杀流氓软件"));
 		CloseHandle(pi.hProcess);
@@ -781,61 +776,29 @@ void CWinCleanerDlg::OnBnClickedKillProcess() {
 }
 
 void CWinCleanerDlg::OnBnClickedDisableUpdate() {
-	LogMessage(_T("开始 [关闭系统更新]"));
-	CString fileName = _T("关闭系统更新.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\4.关闭系统更新\\") + fileName;
-	if (_taccess(exePath, 0) != 0) {
-		fileName = _T("关闭更新.exe");
-		exePath = m_outDir + _T("系统维护工具\\") + fileName;
-	}
-	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[关闭系统更新]程序"));
+	LogMessage(_T("开始 [启动项管理]"));
+	CString fileName = _T("火绒启动项管理_v6.0.5.5.exe");
+	CString exePath = m_outDir + _T("4.其他功能\\4.启动项管理\\") + fileName;
+	if (!EnsureToolExtracted(exePath)) {
+		AfxMessageBox(_T("未找到启动项管理程序"));
 		return;
 	}
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("关闭系统更新");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
-	{
-		LogMessage(_T("已完成 [关闭系统更新]"));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-	}
-	else
-	{
-		AfxMessageBox(_T("无法启动[关闭系统更新]程序"));
-	}
+	CString exeDir = GetParentDir(exePath);
+	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
+	LogMessage(_T("已启动启动项管理"));
 }
 
 void CWinCleanerDlg::OnBnClickedCloseSecurityCenter()
 {
-	LogMessage(_T("开始 [关闭安全中心]"));
-	CString fileName = _T("dControl.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\") + fileName;
-	CString exeDir = m_outDir + _T("3.系统安全与激活\\5.关闭安全中心1\\cde\\");
-
+	LogMessage(_T("开始 [病毒查杀]"));
+	CString fileName = _T("蠕虫病毒专杀.exe");
+	CString exePath = m_outDir + _T("4.其他功能\\5.病毒查杀\\") + fileName;
 	if (_taccess(exePath, 0) != 0) {
-		// 文件可能被Defender删除，尝试重新解压
-		LogMessage(_T("dControl.exe不存在，尝试重新释放..."));
-		// 先添加白名单
-		AddPathToDefenderExclusion(exeDir);
-		// 重新从资源释放ZIP并解压目标文件
-		CString zipPath = m_tempPath + _T("tools.zip");
-		DeleteFile(zipPath);
-		ExtractResourceToFile(IDR_ZIPRC_TOOLS, _T("ZIPRC"), zipPath);
-		if (PathFileExists(zipPath)) {
-			MakeDirP(exeDir);
-			UnzipToDir(zipPath, m_outDir);
-			DeleteFile(zipPath);
-		}
-	}
-
-	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[关闭安全中心]工具，可能被安全软件拦截。\n请先关闭Windows Defender实时保护后重试。"));
+		AfxMessageBox(_T("未找到[病毒查杀]程序"));
 		return;
 	}
-	ShellExecute(NULL, _T("runas"), exePath, NULL, exeDir, SW_SHOWNORMAL);
-	LogMessage(_T("已启动关闭安全中心工具(dControl)"));
+	ShellExecute(NULL, _T("open"), exePath, NULL, NULL, SW_SHOWNORMAL);
+	LogMessage(_T("已启动病毒查杀"));
 }
 
 void CWinCleanerDlg::OnBnClickedContextMgr()
@@ -1002,14 +965,12 @@ void CWinCleanerDlg::OnBnClickedVirusScan()
 
 void CWinCleanerDlg::OnBnClickedDlBeauty()
 {
-	LogMessage(_T("打开美化插件下载"));
-	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/yj15tJ3U"), NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWinCleanerDlg::OnBnClickedDlTools()
 {
 	LogMessage(_T("打开工具下载"));
-	ShellExecute(NULL, _T("open"), _T("https://share.feijipan.com/s/tLXtuZmr"), NULL, NULL, SW_SHOWNORMAL);
+	ShellExecute(NULL, _T("open"), _T("https://my.feishu.cn/docx/EgowdDEqNojz0yxoyGXcjxE7n8e?from=from_copylink"), NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWinCleanerDlg::OnBnClickedThisPcMgr()
@@ -1118,18 +1079,6 @@ void CWinCleanerDlg::OnDestroy()
 
 void CWinCleanerDlg::OnTimer(UINT_PTR nIDEvent)
 {
-
-	if (nIDEvent == ID_TIMER_NOTICE_SCROLL) {
-		// 公告栏滚动效果
-		CWnd* pNotice = GetDlgItem(IDC_STATIC_NOTICE);
-		if (pNotice && !m_strNoticeText.IsEmpty()) {
-			int len = m_strNoticeText.GetLength();
-			m_nNoticeScrollPos = (m_nNoticeScrollPos + 1) % len;
-			CString display = m_strNoticeText.Mid(m_nNoticeScrollPos) + m_strNoticeText.Left(m_nNoticeScrollPos);
-			pNotice->SetWindowText(display);
-		}
-		return;
-	}
 	CDialogEx::OnTimer(nIDEvent);
 }
 
