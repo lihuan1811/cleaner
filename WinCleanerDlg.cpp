@@ -179,12 +179,6 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		pNoticeCtrl->SetWindowText(_T("正在为您远程服务，请勿操作电脑"));
 	}
 
-	// 隐藏美化插件下载按钮
-	CWnd* pBtnBeauty = GetDlgItem(IDC_BTN_DL_BEAUTY);
-	if (pBtnBeauty) {
-		pBtnBeauty->ShowWindow(SW_HIDE);
-	}
-
 	// 检测系统架构
 	SYSTEM_INFO si;
 	GetNativeSystemInfo(&si);
