@@ -735,7 +735,7 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
 
-	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock\\");
+	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
 	CString batPath = popDir + _T("绿化.bat");
 	CString exePath = popDir + _T("PopBlock.exe");
 
