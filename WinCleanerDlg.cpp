@@ -644,9 +644,9 @@ void CWinCleanerDlg::OnBnClickedDiskDefrag()
 
 void CWinCleanerDlg::OnBnClickedSoftwareUninstall() {
 	LogMessage(_T("开始 [软件卸载]"));
-	CString fileName = _T("Hibit Uninstaller 4.0.10.100 Multilingual.exe");
-	CString exePath = m_outDir + _T("2.系统维护工具\\3.软件卸载\\Hibit Uninstaller 4.0.10.100 Multilingual\\") + fileName;
-	CString exeDir = m_outDir + _T("2.系统维护工具\\3.软件卸载\\Hibit Uninstaller 4.0.10.100 Multilingual\\");
+	CString fileName = _T("HiBitUninstaller.exe");
+	CString exePath = m_outDir + _T("2.系统维护工具\\3.软件卸载\\") + fileName;
+	CString exeDir = m_outDir + _T("2.系统维护工具\\3.软件卸载\\");
 	if (_taccess(exePath, 0) != 0) {
 		AfxMessageBox(_T("未找到软件卸载程序"));
 		return;
