@@ -186,7 +186,7 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		// 扩大窗口高度以容纳声明文字
 		CRect winRect;
 		GetWindowRect(&winRect);
-		int extraHeight = 115; // 像素
+		int extraHeight = 120; // 像素
 		MoveWindow(winRect.left, winRect.top, winRect.Width(), winRect.Height() + extraHeight);
 		GetClientRect(&dlgRect);
 
