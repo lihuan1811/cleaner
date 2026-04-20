@@ -735,16 +735,25 @@ void CWinCleanerDlg::OnBnClickedSystemActivate() {
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
 
-	CString exePath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlockX64\\PopBlock.exe");
+	CString batPath = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlockX64\\绿化.bat");
 	CString exeDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\HuorongPopBlockX64\\");
 
-	if (!EnsureToolExtracted(exePath)) {
+	if (!EnsureToolExtracted(batPath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	ShellExecute(NULL, _T("open"), exePath, NULL, exeDir, SW_SHOWNORMAL);
-	LogMessage(_T("已启动弹窗拦截（后台运行）"));
+	// 以管理员权限运行绿化脚本
+	HINSTANCE hRes = ShellExecute(NULL, _T("runas"), _T("cmd.exe"), 
+		_T("/c \"") + batPath + _T("\""), exeDir, SW_HIDE);
+	
+	if ((INT_PTR)hRes <= 32) {
+		// 如果 runas 失败，尝试普通运行
+		ShellExecute(NULL, _T("open"), _T("cmd.exe"),
+			_T("/c \"") + batPath + _T("\""), exeDir, SW_HIDE);
+	}
+	
+	LogMessage(_T("已启动弹窗拦截绿化程序"));
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
