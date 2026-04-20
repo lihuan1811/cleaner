@@ -737,33 +737,27 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
 	CString batPath = popDir + _T("绿化.bat");
-	CString exePath = popDir + _T("PopBlock.exe");
 
-	if (!EnsureToolExtracted(exePath)) {
+	if (!EnsureToolExtracted(batPath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	// 先执行绿化.bat注册环境
-	if (_taccess(batPath, 0) == 0) {
-		SHELLEXECUTEINFO sei = { sizeof(sei) };
-		sei.lpVerb = _T("runas");
-		sei.lpFile = _T("cmd.exe");
-		CString cmdArgs = _T("/c \"") + batPath + _T("\"");
-		sei.lpParameters = cmdArgs;
-		sei.lpDirectory = popDir;
-		sei.nShow = SW_HIDE;
-		sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-		if (ShellExecuteEx(&sei)) {
-			WaitForSingleObject(sei.hProcess, 10000); // 最多等10秒
-			CloseHandle(sei.hProcess);
-			LogMessage(_T("绿化脚本执行完成"));
-		}
+	// 以管理员权限执行绿化.bat
+	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	sei.lpVerb = _T("runas");
+	sei.lpFile = _T("cmd.exe");
+	CString cmdArgs = _T("/c \"") + batPath + _T("\"");
+	sei.lpParameters = cmdArgs;
+	sei.lpDirectory = popDir;
+	sei.nShow = SW_HIDE;
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+	if (ShellExecuteEx(&sei)) {
+		WaitForSingleObject(sei.hProcess, 10000);
+		CloseHandle(sei.hProcess);
 	}
 
-	// 启动 PopBlock.exe，保持后台运行，不删除
-	ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
-	LogMessage(_T("已启动弹窗拦截（后台运行）"));
+	LogMessage(_T("已完成 [弹窗拦截]"));
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
