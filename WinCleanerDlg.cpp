@@ -485,14 +485,8 @@ void CWinCleanerDlg::OnBnClickedBigfileDelete()
 
 void CWinCleanerDlg::OnBnClickedCacheClean() {
 	LogMessage(_T("开始 [缓存清理]"));
-	std::vector<CString> dirs = {
-		_T("C:\\Recovery\\Customizations\\USMT.PPKG"),
-		_T("C:\\Users\\Administrator\\Videos\\Overwolf\\Outplayed\\Delta Force"),
-		_T("C:\\ProgramData\\Dell\\SARemediation\\SystemRepair\\Snapshots\\Backup")
-	};
-	DeleteDirectories(dirs);
-
-	// 无畏契约高光时刻清理
+	
+	// 仅清理无畏契约高光时刻
 	TCHAR userProfile[MAX_PATH];
 	ExpandEnvironmentStrings(_T("%USERPROFILE%"), userProfile, MAX_PATH);
 	CString aclosPath = CString(userProfile) + _T("\\AppData\\ACLOS\\aclos-highlight");
