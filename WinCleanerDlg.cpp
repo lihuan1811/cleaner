@@ -179,6 +179,55 @@ BOOL CWinCleanerDlg::OnInitDialog()
 		pNoticeCtrl->SetWindowText(_T("正在为您远程服务，请勿操作电脑"));
 	}
 
+	// === 声明小字（公告栏下方） ===
+	{
+		CRect dlgRect;
+		GetClientRect(&dlgRect);
+		// 扩大窗口高度以容纳声明文字
+		CRect winRect;
+		GetWindowRect(&winRect);
+		int extraHeight = 58; // 像素
+		MoveWindow(winRect.left, winRect.top, winRect.Width(), winRect.Height() + extraHeight);
+		GetClientRect(&dlgRect);
+
+		CString disclaimerText;
+		disclaimerText = _T("1. 本工具仅提供系统优化、清理、设置调整等合规维护服务，")
+			_T("不破解/篡改用户系统授权，不强制安装第三方软件，全程透明可监督。\r\n")
+			_T("2. 远程服务仅针对您的电脑问题进行操作，绝不查看、复制、上传您的")
+			_T("个人文件、聊天记录、账号密码等隐私数据，服务结束后无任何残留程序。\r\n")
+			_T("3. 本次维护服务支持7天售后，若出现异常问题可随时联系我们免费处理，")
+			_T("不推诿、不二次收费。");
+
+		// 在其他功能 groupbox 下方创建声明控件
+		CWnd* pGroupOther = GetDlgItem(IDC_GROUP_OTHER);
+		CRect groupRect;
+		if (pGroupOther) {
+			pGroupOther->GetWindowRect(&groupRect);
+			ScreenToClient(&groupRect);
+		} else {
+			groupRect.SetRect(10, dlgRect.bottom - extraHeight - 10, dlgRect.right - 10, dlgRect.bottom - extraHeight);
+		}
+
+		int disclaimerTop = groupRect.bottom + 4;
+		int disclaimerLeft = groupRect.left + 2;
+		int disclaimerWidth = groupRect.Width() - 4;
+		int disclaimerHeight = extraHeight - 8;
+
+		m_wndDisclaimer.Create(disclaimerText, WS_CHILD | WS_VISIBLE | SS_LEFT,
+			CRect(disclaimerLeft, disclaimerTop, disclaimerLeft + disclaimerWidth, disclaimerTop + disclaimerHeight),
+			this, 9999);
+
+		HDC hDC2 = ::GetDC(m_hWnd);
+		int dpi2 = GetDeviceCaps(hDC2, LOGPIXELSY);
+		::ReleaseDC(m_hWnd, hDC2);
+		LOGFONT lfSmall = { 0 };
+		lfSmall.lfHeight = -MulDiv(8, dpi2, 72);
+		lfSmall.lfWeight = FW_NORMAL;
+		_tcscpy_s(lfSmall.lfFaceName, _T("Microsoft YaHei UI"));
+		m_fontDisclaimer.CreateFontIndirect(&lfSmall);
+		m_wndDisclaimer.SetFont(&m_fontDisclaimer);
+	}
+
 	// 检测系统架构
 	SYSTEM_INFO si;
 	GetNativeSystemInfo(&si);
@@ -962,6 +1011,12 @@ HBRUSH CWinCleanerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		pDC->SetTextColor(RGB(200, 0, 0));  // 红色文字
 		pDC->SetBkColor(RGB(255, 240, 240)); // 淡红背景
 		return (HBRUSH)m_noticeBrush.GetSafeHandle();
+	}
+	if (pWnd->GetDlgCtrlID() == 9999)
+	{
+		pDC->SetTextColor(RGB(130, 130, 130)); // 灰色小字
+		pDC->SetBkMode(TRANSPARENT);
+		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
 	return hbr;
 }

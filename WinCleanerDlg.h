@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "afxdialogex.h"
 #include "LogUtil.h"
 
@@ -22,6 +22,8 @@ protected:
 	BOOLEAN is64 = FALSE;
 	CFont m_fontNotice;
 	CBrush m_noticeBrush;
+	CFont m_fontDisclaimer;
+	CStatic m_wndDisclaimer;
 
 	enum { ID_TIMER_NOTICE_SCROLL = 1002 };
 	BOOL EnsureToolExtracted(const CString& primaryPath, const CString& fallbackPath = _T(""), DWORD waitMs = 5000);
