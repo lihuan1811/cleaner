@@ -1014,7 +1014,7 @@ HBRUSH CWinCleanerDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	}
 	if (pWnd->GetDlgCtrlID() == 9999)
 	{
-		pDC->SetTextColor(RGB(130, 130, 130)); // 灰色小字
+		pDC->SetTextColor(RGB(80, 80, 80)); // 深灰小字
 		pDC->SetBkMode(TRANSPARENT);
 		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
