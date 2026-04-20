@@ -1,4 +1,4 @@
-﻿// WinCleanerDlg.cpp: 实现文件
+// WinCleanerDlg.cpp: 实现文件
 //
 
 #include "pch.h"
@@ -685,32 +685,8 @@ void CWinCleanerDlg::OnBnClickedSystemOptimize()
 // ============================================================
 
 void CWinCleanerDlg::OnBnClickedSystemActivate() {
-	LogMessage(_T("开始 [系统激活]"));
-	CString fileName = _T("HKM.exe");
-	CString exePath = m_outDir + _T("3.系统安全与激活\\1.系统激活\\HEU KMS Activator 63.3.3\\") + fileName;
-	CString exeDir = m_outDir + _T("3.系统安全与激活\\1.系统激活\\HEU KMS Activator 63.3.3\\");
-	if (_taccess(exePath, 0) != 0) {
-		exePath = m_outDir + _T("3.系统安全与激活\\1.系统激活\\") + fileName;
-		exeDir = m_outDir + _T("3.系统安全与激活\\1.系统激活\\");
-	}
-	if (_taccess(exePath, 0) != 0) {
-		AfxMessageBox(_T("未找到[系统激活]程序"));
-		return;
-	}
-	AddPathToDefenderExclusion(exeDir);
-	STARTUPINFO si = { sizeof(si) };
-	si.lpTitle = _T("系统激活");
-	PROCESS_INFORMATION pi;
-	if (CreateProcess(exePath.GetBuffer(), NULL, NULL, NULL, FALSE, 0, NULL, exeDir, &si, &pi))
-	{
-		LogMessage(_T("已启动系统激活"));
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-	}
-	else
-	{
-		AfxMessageBox(_T("无法启动[系统激活]程序"));
-	}
+	LogMessage(_T("打开系统授权修复下载"));
+	ShellExecute(NULL, _T("open"), _T("https://yype.lanzoul.com/iR2HC3nprsre"), NULL, NULL, SW_SHOWNORMAL);
 }
 
 void CWinCleanerDlg::OnBnClickedPopupBlock() {
