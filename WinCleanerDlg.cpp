@@ -743,21 +743,45 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		return;
 	}
 
-	// 以管理员权限执行绿化.bat
-	SHELLEXECUTEINFO sei = { sizeof(sei) };
-	sei.lpVerb = _T("runas");
-	sei.lpFile = _T("cmd.exe");
-	CString cmdArgs = _T("/c \"") + batPath + _T("\"");
-	sei.lpParameters = cmdArgs;
-	sei.lpDirectory = popDir;
-	sei.nShow = SW_HIDE;
-	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-	if (ShellExecuteEx(&sei)) {
-		WaitForSingleObject(sei.hProcess, 10000);
-		CloseHandle(sei.hProcess);
-	}
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi = { 0 };
+	CString cmdLine;
+	cmdLine.Format(_T("cmd.exe /d /c \"\"%s\"\""), batPath.GetString());
+	if (CreateProcess(NULL, cmdLine.GetBuffer(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, popDir, &si, &pi))
+	{
+		cmdLine.ReleaseBuffer();
+		DWORD waitResult = WaitForSingleObject(pi.hProcess, 30000);
+		DWORD exitCode = 0;
+		GetExitCodeProcess(pi.hProcess, &exitCode);
+		CloseHandle(pi.hThread);
+		CloseHandle(pi.hProcess);
 
-	LogMessage(_T("已完成 [弹窗拦截]"));
+		CString msg;
+		if (waitResult == WAIT_TIMEOUT) {
+			msg.Format(_T("弹窗拦截绿化脚本执行超时，退出码: %lu"), exitCode);
+			LogMessage(msg);
+			AfxMessageBox(_T("弹窗拦截绿化脚本执行超时"));
+			return;
+		}
+		if (exitCode != 0) {
+			msg.Format(_T("弹窗拦截绿化脚本执行失败，退出码: %lu"), exitCode);
+			LogMessage(msg);
+			AfxMessageBox(_T("弹窗拦截绿化脚本执行失败"));
+			return;
+		}
+		msg.Format(_T("弹窗拦截绿化脚本执行完成，退出码: %lu"), exitCode);
+		LogMessage(msg);
+		LogMessage(_T("已完成 [弹窗拦截]"));
+	}
+	else {
+		cmdLine.ReleaseBuffer();
+		DWORD err = GetLastError();
+		CString errMsg;
+		errMsg.Format(_T("无法执行弹窗拦截绿化脚本，错误码: %lu"), err);
+		LogMessage(errMsg);
+		AfxMessageBox(_T("无法执行弹窗拦截绿化脚本"));
+		return;
+	}
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
