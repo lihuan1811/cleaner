@@ -325,8 +325,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\WinCleaner.rc2" />
-    <None Include="res\ziprc1.bin" />
-    <None Include="res\系统激活.zip" />
     <None Include="res\系统维护工具.zip" />
   </ItemGroup>
   <ItemGroup>

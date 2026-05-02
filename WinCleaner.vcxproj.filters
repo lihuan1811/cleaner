@@ -96,13 +96,9 @@
     <None Include="res\WinCleaner.rc2">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\ziprc1.bin">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="res\系统维护工具.zip">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="res\系统激活.zip" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\WinCleaner.ico">
