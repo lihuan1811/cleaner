@@ -743,16 +743,20 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		return;
 	}
 
-	CString cmdParams;
-	cmdParams.Format(_T("/d /c start \"\" /D \"%s\" \"%s\""), popDir.GetString(), batPath.GetString());
-	HINSTANCE hRes = ShellExecute(NULL, _T("open"), _T("cmd.exe"), cmdParams, popDir, SW_HIDE);
-	if ((INT_PTR)hRes <= 32) {
-		CString errMsg;
-		errMsg.Format(_T("无法启动弹窗拦截绿化脚本，错误码: %ld"), (LONG)(INT_PTR)hRes);
-		LogMessage(errMsg);
-		AfxMessageBox(_T("无法启动弹窗拦截绿化脚本"));
+	SHELLEXECUTEINFO sei = { sizeof(sei) };
+	sei.lpVerb = _T("runas");
+	sei.lpFile = batPath;
+	sei.lpDirectory = popDir;
+	sei.nShow = SW_HIDE;
+	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+	if (ShellExecuteEx(&sei)) {
+		WaitForSingleObject(sei.hProcess, 10000);
+		CloseHandle(sei.hProcess);
+	} else {
+		AfxMessageBox(_T("无法启动弹窗拦截绿化脚本，请尝试以管理员身份运行。"));
 		return;
 	}
+
 	LogMessage(_T("已启动弹窗拦截绿化脚本"));
 	LogMessage(_T("已完成 [弹窗拦截]"));
 }
