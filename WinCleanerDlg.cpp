@@ -766,42 +766,62 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		}
 	}
 
-	// 步骤2: 启动 PopBlock.exe
-	LogMessage(_T("正在启动 PopBlock.exe..."));
-	HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
-	DWORD shellErr = (DWORD)(INT_PTR)hRes;
-	CString resMsg;
-	resMsg.Format(_T("ShellExecute 返回值: %lu"), shellErr);
-	LogMessage(resMsg);
+	// 步骤2: 校验关键文件大小（防止ZIP解压损坏）
+	struct { LPCTSTR name; DWORD expectedSize; } checks[] = {
+		{ _T("PopBlock.exe"), 795752 },
+		{ _T("DuiLib.dll"), 1812072 },
+		{ _T("PopBlkEng.dll"), 449128 },
+		{ _T("libxsse.dll"), 1540072 },
+		{ _T("CrashHandler.dll"), 125544 },
+		{ _T("selfprot.dll"), 100152 },
+	};
+	for (auto& chk : checks) {
+		CString filePath = popDir + chk.name;
+		WIN32_FILE_ATTRIBUTE_DATA fad;
+		if (GetFileAttributesEx(filePath, GetFileExInfoStandard, &fad)) {
+			DWORD actualSize = fad.nFileSizeLow;
+			CString sizeMsg;
+			sizeMsg.Format(_T("  %s: %lu bytes (期望 %lu)%s"), chk.name, actualSize, chk.expectedSize,
+				actualSize == chk.expectedSize ? _T(" ✓") : _T(" ✗ 大小不匹配!"));
+			LogMessage(sizeMsg);
+		} else {
+			LogMessage(CString(_T("  ")) + chk.name + _T(": 文件不存在!"));
+		}
+	}
 
-	if (shellErr <= 32) {
+	// 步骤3: 用 CreateProcess 启动，可以获取退出码
+	LogMessage(_T("正在启动 PopBlock.exe..."));
+	CString cmdLine = _T("\"") + exePath + _T("\"");
+	STARTUPINFO si = { sizeof(si) };
+	PROCESS_INFORMATION pi = { 0 };
+	BOOL bRet = CreateProcess(NULL, cmdLine.GetBuffer(), NULL, NULL, FALSE,
+		0, NULL, popDir, &si, &pi);
+	cmdLine.ReleaseBuffer();
+
+	if (!bRet) {
+		DWORD err = GetLastError();
 		CString errMsg;
-		errMsg.Format(_T("启动失败，错误码: %lu"), shellErr);
+		errMsg.Format(_T("CreateProcess 失败，错误码: %lu"), err);
 		LogMessage(errMsg);
 		AfxMessageBox(errMsg);
 	} else {
-		// 等一秒检查进程是否还在
-		Sleep(1500);
-		HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-		if (hSnap != INVALID_HANDLE_VALUE) {
-			PROCESSENTRY32 pe = { sizeof(pe) };
-			BOOL found = FALSE;
-			if (Process32First(hSnap, &pe)) {
-				do {
-					if (_tcsicmp(pe.szExeFile, _T("PopBlock.exe")) == 0) {
-						found = TRUE;
-						break;
-					}
-				} while (Process32Next(hSnap, &pe));
+		// 等待进程退出或超时3秒
+		DWORD waitResult = WaitForSingleObject(pi.hProcess, 3000);
+		if (waitResult == WAIT_OBJECT_0) {
+			// 进程已退出，获取退出码
+			DWORD exitCode = 0;
+			GetExitCodeProcess(pi.hProcess, &exitCode);
+			CString exitMsg;
+			exitMsg.Format(_T("PopBlock.exe 已退出，退出码: 0x%08X (%lu)"), exitCode, exitCode);
+			LogMessage(exitMsg);
+			if (exitCode != 0) {
+				AfxMessageBox(_T("弹窗拦截程序异常退出，请查看日志"));
 			}
-			CloseHandle(hSnap);
-			if (found) {
-				LogMessage(_T("PopBlock.exe 进程正在运行"));
-			} else {
-				LogMessage(_T("PopBlock.exe 进程未找到，可能已崩溃退出！"));
-				AfxMessageBox(_T("弹窗拦截程序启动后立即退出了，可能缺少运行环境。"));
-			}
+		} else {
+			LogMessage(_T("PopBlock.exe 正在运行（3秒内未退出）"));
 		}
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
 	}
 
 	LogMessage(_T("已完成 [弹窗拦截]"));
