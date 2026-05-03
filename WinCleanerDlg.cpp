@@ -743,26 +743,18 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		return;
 	}
 
-	SHELLEXECUTEINFO sei = { sizeof(sei) };
-	sei.lpVerb = _T("runas");
-	sei.lpFile = batPath;
-	sei.lpDirectory = popDir;
-	sei.nShow = SW_HIDE; // bat can be hidden now that we launch exe explicitly
-	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-	if (ShellExecuteEx(&sei)) {
-		WaitForSingleObject(sei.hProcess, 5000); // Wait up to 5 seconds for bat
-		CloseHandle(sei.hProcess);
-	}
-
-	// 显式启动 PopBlock.exe
-	CString exePath = popDir + _T("PopBlock.exe");
-	HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+	// 主程序是绿化.bat，直接通过普通 open 的方式打开，等同于用户双击运行
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), batPath, NULL, popDir, SW_SHOWNORMAL);
 	if ((INT_PTR)hRes <= 32) {
-		CString errMsg;
-		errMsg.Format(_T("无法启动 PopBlock.exe，错误码: %ld"), (LONG)(INT_PTR)hRes);
-		LogMessage(errMsg);
-		AfxMessageBox(errMsg);
-		return;
+		// 如果 open 失败，尝试以 runas 提权运行
+		hRes = ShellExecute(NULL, _T("runas"), batPath, NULL, popDir, SW_SHOWNORMAL);
+		if ((INT_PTR)hRes <= 32) {
+			CString errMsg;
+			errMsg.Format(_T("无法启动弹窗拦截绿化程序，错误码: %ld"), (LONG)(INT_PTR)hRes);
+			LogMessage(errMsg);
+			AfxMessageBox(errMsg);
+			return;
+		}
 	}
 
 	LogMessage(_T("已启动弹窗拦截程序"));
