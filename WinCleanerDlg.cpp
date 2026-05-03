@@ -744,54 +744,16 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		return;
 	}
 
-	STARTUPINFO si = { sizeof(si) };
-	PROCESS_INFORMATION pi = { 0 };
-	CString cmdLine;
-	cmdLine.Format(_T("cmd.exe /d /c \"\"%s\"\""), batPath.GetString());
-	if (CreateProcess(NULL, cmdLine.GetBuffer(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, popDir, &si, &pi))
-	{
-		cmdLine.ReleaseBuffer();
-		DWORD waitResult = WaitForSingleObject(pi.hProcess, 30000);
-		DWORD exitCode = 0;
-		GetExitCodeProcess(pi.hProcess, &exitCode);
-		CloseHandle(pi.hThread);
-		CloseHandle(pi.hProcess);
-
-		CString msg;
-		if (waitResult == WAIT_TIMEOUT) {
-			msg.Format(_T("弹窗拦截绿化脚本执行超时，退出码: %lu"), exitCode);
-			LogMessage(msg);
-			AfxMessageBox(_T("弹窗拦截绿化脚本执行超时"));
-			return;
-		}
-		if (exitCode != 0) {
-			msg.Format(_T("弹窗拦截绿化脚本执行失败，退出码: %lu"), exitCode);
-			LogMessage(msg);
-			AfxMessageBox(_T("弹窗拦截绿化脚本执行失败"));
-			return;
-		}
-		msg.Format(_T("弹窗拦截绿化脚本执行完成，退出码: %lu"), exitCode);
-		LogMessage(msg);
-
-		HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
-		if ((INT_PTR)hRes <= 32) {
-			msg.Format(_T("弹窗拦截程序启动失败，错误码: %ld"), (LONG)(INT_PTR)hRes);
-			LogMessage(msg);
-			AfxMessageBox(_T("弹窗拦截程序启动失败"));
-			return;
-		}
-		LogMessage(_T("已启动弹窗拦截程序"));
-		LogMessage(_T("已完成 [弹窗拦截]"));
-	}
-	else {
-		cmdLine.ReleaseBuffer();
-		DWORD err = GetLastError();
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), batPath, NULL, popDir, SW_SHOWNORMAL);
+	if ((INT_PTR)hRes <= 32) {
 		CString errMsg;
-		errMsg.Format(_T("无法执行弹窗拦截绿化脚本，错误码: %lu"), err);
+		errMsg.Format(_T("无法启动弹窗拦截绿化脚本，错误码: %ld"), (LONG)(INT_PTR)hRes);
 		LogMessage(errMsg);
-		AfxMessageBox(_T("无法执行弹窗拦截绿化脚本"));
+		AfxMessageBox(_T("无法启动弹窗拦截绿化脚本"));
 		return;
 	}
+	LogMessage(_T("已启动弹窗拦截绿化脚本"));
+	LogMessage(_T("已完成 [弹窗拦截]"));
 }
 
 void CWinCleanerDlg::OnBnClickedKillProcess() {
