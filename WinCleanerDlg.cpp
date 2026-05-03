@@ -743,7 +743,9 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		return;
 	}
 
-	HINSTANCE hRes = ShellExecute(NULL, _T("open"), batPath, NULL, popDir, SW_SHOWNORMAL);
+	CString cmdParams;
+	cmdParams.Format(_T("/d /c start \"\" /D \"%s\" \"%s\""), popDir.GetString(), batPath.GetString());
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), _T("cmd.exe"), cmdParams, popDir, SW_HIDE);
 	if ((INT_PTR)hRes <= 32) {
 		CString errMsg;
 		errMsg.Format(_T("无法启动弹窗拦截绿化脚本，错误码: %ld"), (LONG)(INT_PTR)hRes);
