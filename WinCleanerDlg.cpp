@@ -736,45 +736,37 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
+	CString exePath = popDir + _T("PopBlock.exe");
 	CString batPath = popDir + _T("绿化.bat");
 
-	if (!EnsureToolExtracted(batPath)) {
+	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	// 模拟用户双击 绿化.bat —— 使用 CreateProcess 启动 cmd.exe /c "batPath"
-	// 设置工作目录为 PopBlock_6.0 文件夹，确保 %~dp0 解析正确
-	CString cmdLine;
-	cmdLine.Format(_T("cmd.exe /c \"\"%s\"\""), batPath.GetString());
+	// 先检查路径和文件是否真正存在
+	LogMessage(_T("PopBlock路径: ") + popDir);
+	LogMessage(_T("EXE路径: ") + exePath);
 
-	STARTUPINFO si = { sizeof(si) };
-	si.dwFlags = STARTF_USESHOWWINDOW;
-	si.wShowWindow = SW_SHOWNORMAL;
-	PROCESS_INFORMATION pi = { 0 };
-
-	BOOL bRet = CreateProcess(
-		NULL,
-		cmdLine.GetBuffer(),
-		NULL, NULL, FALSE,
-		CREATE_NEW_CONSOLE,  // 新建控制台，和双击行为一致
-		NULL,
-		popDir,              // 工作目录设为 PopBlock_6.0 文件夹
-		&si, &pi
-	);
-	cmdLine.ReleaseBuffer();
-
-	if (bRet) {
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-		LogMessage(_T("已启动弹窗拦截程序"));
-	} else {
-		DWORD err = GetLastError();
-		CString errMsg;
-		errMsg.Format(_T("无法启动弹窗拦截，错误码: %lu"), err);
-		LogMessage(errMsg);
-		AfxMessageBox(errMsg);
+	if (_taccess(exePath, 0) != 0) {
+		LogMessage(_T("PopBlock.exe 不存在!"));
+		AfxMessageBox(_T("PopBlock.exe 文件不存在"));
+		return;
 	}
+
+	// 列出目录下的文件用于诊断
+	WIN32_FIND_DATA fd;
+	CString searchPath = popDir + _T("*");
+	HANDLE hFind = FindFirstFile(searchPath, &fd);
+	if (hFind != INVALID_HANDLE_VALUE) {
+		do {
+			LogMessage(CString(_T("  文件: ")) + fd.cFileName);
+		} while (FindNextFile(hFind, &fd));
+		FindClose(hFind);
+	}
+
+	// 直接启动 PopBlock.exe
+	ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
 
 	LogMessage(_T("已完成 [弹窗拦截]"));
 }
