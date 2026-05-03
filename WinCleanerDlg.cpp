@@ -737,10 +737,9 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
 	CString batPath = popDir + _T("绿化.bat");
-	CString exePath = popDir + _T("PopBlock.exe");
 
-	if (!EnsureToolExtracted(batPath, exePath)) {
-		AfxMessageBox(_T("未找到弹窗拦截程序"));
+	if (!EnsureToolExtracted(batPath)) {
+		AfxMessageBox(_T("未找到弹窗拦截绿化脚本"));
 		return;
 	}
 
