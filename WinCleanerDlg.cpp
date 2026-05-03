@@ -737,8 +737,9 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
 	CString batPath = popDir + _T("绿化.bat");
+	CString exePath = popDir + _T("PopBlock.exe");
 
-	if (!EnsureToolExtracted(batPath)) {
+	if (!EnsureToolExtracted(batPath, exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
@@ -771,6 +772,15 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 		}
 		msg.Format(_T("弹窗拦截绿化脚本执行完成，退出码: %lu"), exitCode);
 		LogMessage(msg);
+
+		HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+		if ((INT_PTR)hRes <= 32) {
+			msg.Format(_T("弹窗拦截程序启动失败，错误码: %ld"), (LONG)(INT_PTR)hRes);
+			LogMessage(msg);
+			AfxMessageBox(_T("弹窗拦截程序启动失败"));
+			return;
+		}
+		LogMessage(_T("已启动弹窗拦截程序"));
 		LogMessage(_T("已完成 [弹窗拦截]"));
 	}
 	else {
