@@ -736,25 +736,67 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	LogMessage(_T("开始 [弹窗拦截]"));
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
-	CString batPath = popDir + _T("绿化.bat");
+	CString exePath = popDir + _T("PopBlock.exe");
 
-	if (!EnsureToolExtracted(batPath)) {
-		AfxMessageBox(_T("未找到弹窗拦截绿化脚本"));
+	if (!EnsureToolExtracted(exePath)) {
+		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	// 主程序是绿化.bat，直接通过普通 open 的方式打开，等同于用户双击运行
-	HINSTANCE hRes = ShellExecute(NULL, _T("open"), batPath, NULL, popDir, SW_SHOWNORMAL);
-	if ((INT_PTR)hRes <= 32) {
-		// 如果 open 失败，尝试以 runas 提权运行
-		hRes = ShellExecute(NULL, _T("runas"), batPath, NULL, popDir, SW_SHOWNORMAL);
-		if ((INT_PTR)hRes <= 32) {
-			CString errMsg;
-			errMsg.Format(_T("无法启动弹窗拦截绿化程序，错误码: %ld"), (LONG)(INT_PTR)hRes);
-			LogMessage(errMsg);
-			AfxMessageBox(errMsg);
-			return;
+	// 绿化.bat 做的事情：
+	// 1. xcopy "%~dp0data" C:\ProgramData\Huorong\sysdiag\ /S /Y
+	// 2. reg add HKLM\SOFTWARE\Huorong\Sysdiag\app /f /v DataPath /t reg_sz /d C:\ProgramData\Huorong\sysdiag
+	// 3. start "" "%~dp0PopBlock.exe"
+	// 我们在C++中直接完成这三步，避免bat/VBS提权在中文路径下失败
+
+	CString dataDir = popDir + _T("data");
+	CString destDir = _T("C:\\ProgramData\\Huorong\\sysdiag");
+
+	// 步骤1: 复制 data 目录到 C:\ProgramData\Huorong\sysdiag
+	if (PathFileExists(dataDir)) {
+		// 使用 xcopy 命令复制（需要管理员权限）
+		CString xcopyCmd;
+		xcopyCmd.Format(_T("/c xcopy \"%s\" \"%s\\\" /S /Y /I"), dataDir.GetString(), destDir.GetString());
+		
+		SHELLEXECUTEINFO sei = { sizeof(sei) };
+		sei.lpVerb = _T("runas");
+		sei.lpFile = _T("cmd.exe");
+		sei.lpParameters = xcopyCmd;
+		sei.nShow = SW_HIDE;
+		sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+		if (ShellExecuteEx(&sei)) {
+			WaitForSingleObject(sei.hProcess, 10000);
+			CloseHandle(sei.hProcess);
+			LogMessage(_T("已复制数据到 Huorong 目录"));
+		} else {
+			LogMessage(_T("复制数据失败，可能缺少管理员权限"));
 		}
+
+		// 步骤2: 写注册表
+		CString regCmd = _T("/c reg add HKLM\\SOFTWARE\\Huorong\\Sysdiag\\app /f /v DataPath /t reg_sz /d C:\\ProgramData\\Huorong\\sysdiag");
+		SHELLEXECUTEINFO sei2 = { sizeof(sei2) };
+		sei2.lpVerb = _T("runas");
+		sei2.lpFile = _T("cmd.exe");
+		sei2.lpParameters = regCmd;
+		sei2.nShow = SW_HIDE;
+		sei2.fMask = SEE_MASK_NOCLOSEPROCESS;
+		if (ShellExecuteEx(&sei2)) {
+			WaitForSingleObject(sei2.hProcess, 5000);
+			CloseHandle(sei2.hProcess);
+			LogMessage(_T("已写入注册表"));
+		}
+	} else {
+		LogMessage(_T("data目录不存在，跳过环境配置"));
+	}
+
+	// 步骤3: 启动 PopBlock.exe
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+	if ((INT_PTR)hRes <= 32) {
+		CString errMsg;
+		errMsg.Format(_T("无法启动 PopBlock.exe，错误码: %ld"), (LONG)(INT_PTR)hRes);
+		LogMessage(errMsg);
+		AfxMessageBox(errMsg);
+		return;
 	}
 
 	LogMessage(_T("已启动弹窗拦截程序"));
