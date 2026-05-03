@@ -747,7 +747,7 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	sei.lpVerb = _T("runas");
 	sei.lpFile = batPath;
 	sei.lpDirectory = popDir;
-	sei.nShow = SW_HIDE;
+	sei.nShow = SW_SHOWNORMAL;
 	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 	if (ShellExecuteEx(&sei)) {
 		WaitForSingleObject(sei.hProcess, 10000);
