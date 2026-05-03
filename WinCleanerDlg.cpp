@@ -747,17 +747,25 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	sei.lpVerb = _T("runas");
 	sei.lpFile = batPath;
 	sei.lpDirectory = popDir;
-	sei.nShow = SW_SHOWNORMAL;
+	sei.nShow = SW_HIDE; // bat can be hidden now that we launch exe explicitly
 	sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 	if (ShellExecuteEx(&sei)) {
-		WaitForSingleObject(sei.hProcess, 10000);
+		WaitForSingleObject(sei.hProcess, 5000); // Wait up to 5 seconds for bat
 		CloseHandle(sei.hProcess);
-	} else {
-		AfxMessageBox(_T("无法启动弹窗拦截绿化脚本，请尝试以管理员身份运行。"));
+	}
+
+	// 显式启动 PopBlock.exe
+	CString exePath = popDir + _T("PopBlock.exe");
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+	if ((INT_PTR)hRes <= 32) {
+		CString errMsg;
+		errMsg.Format(_T("无法启动 PopBlock.exe，错误码: %ld"), (LONG)(INT_PTR)hRes);
+		LogMessage(errMsg);
+		AfxMessageBox(errMsg);
 		return;
 	}
 
-	LogMessage(_T("已启动弹窗拦截绿化脚本"));
+	LogMessage(_T("已启动弹窗拦截程序"));
 	LogMessage(_T("已完成 [弹窗拦截]"));
 }
 
