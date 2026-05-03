@@ -745,22 +745,30 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 	}
 
 	// 步骤1: 复制 data 到 C:\ProgramData\Huorong\sysdiag（绿化.bat 的核心操作）
+	// 注意：WinCleaner 是32位进程，必须使用64位 cmd.exe 来写注册表
+	// 否则 reg add 会写到 WOW6432Node 下，64位的 PopBlock.exe 读不到
 	CString dataDir = popDir + _T("data");
 	if (PathFileExists(dataDir)) {
 		CString xcopyCmd;
-		xcopyCmd.Format(_T("/c mkdir \"C:\\ProgramData\\Huorong\\sysdiag\" 2>nul & xcopy \"%s\" \"C:\\ProgramData\\Huorong\\sysdiag\\\" /S /Y /I 1>nul 2>nul & reg add HKLM\\SOFTWARE\\Huorong\\Sysdiag\\app /f /v DataPath /t reg_sz /d C:\\ProgramData\\Huorong\\sysdiag 2>nul"),
+		xcopyCmd.Format(_T("/c mkdir \"C:\\ProgramData\\Huorong\\sysdiag\" 2>nul & xcopy \"%s\" \"C:\\ProgramData\\Huorong\\sysdiag\\\" /S /Y /I 1>nul 2>nul & reg add HKLM\\SOFTWARE\\Huorong\\Sysdiag\\app /f /v DataPath /t reg_sz /d C:\\ProgramData\\Huorong\\sysdiag /reg:64 2>nul"),
 			dataDir.GetString());
+
+		// 使用 Sysnative\cmd.exe 确保在64位上下文中运行
+		CString cmd64 = _T("C:\\Windows\\Sysnative\\cmd.exe");
+		if (_taccess(cmd64, 0) != 0) {
+			cmd64 = _T("cmd.exe"); // 回退到默认
+		}
 
 		SHELLEXECUTEINFO sei = { sizeof(sei) };
 		sei.lpVerb = _T("runas");
-		sei.lpFile = _T("cmd.exe");
+		sei.lpFile = cmd64;
 		sei.lpParameters = xcopyCmd;
 		sei.nShow = SW_HIDE;
 		sei.fMask = SEE_MASK_NOCLOSEPROCESS;
 		if (ShellExecuteEx(&sei)) {
 			WaitForSingleObject(sei.hProcess, 15000);
 			CloseHandle(sei.hProcess);
-			LogMessage(_T("环境配置完成"));
+			LogMessage(_T("环境配置完成（64位注册表）"));
 		} else {
 			LogMessage(_T("环境配置失败（需要管理员权限）"));
 		}
