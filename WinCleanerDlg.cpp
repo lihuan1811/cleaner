@@ -16,6 +16,7 @@
 #include <ctime>
 #include <fstream>
 #include <filesystem>
+#include <TlHelp32.h>
 #include "LogUtil.h"
 #include "WinCleanerContentDlg.h"
 #include "ClosedDlg.h"
@@ -737,36 +738,71 @@ void CWinCleanerDlg::OnBnClickedPopupBlock() {
 
 	CString popDir = m_outDir + _T("3.系统安全与激活\\2.弹窗拦截\\PopBlock_6.0\\");
 	CString exePath = popDir + _T("PopBlock.exe");
-	CString batPath = popDir + _T("绿化.bat");
 
 	if (!EnsureToolExtracted(exePath)) {
 		AfxMessageBox(_T("未找到弹窗拦截程序"));
 		return;
 	}
 
-	// 先检查路径和文件是否真正存在
-	LogMessage(_T("PopBlock路径: ") + popDir);
-	LogMessage(_T("EXE路径: ") + exePath);
+	// 步骤1: 复制 data 到 C:\ProgramData\Huorong\sysdiag（绿化.bat 的核心操作）
+	CString dataDir = popDir + _T("data");
+	if (PathFileExists(dataDir)) {
+		CString xcopyCmd;
+		xcopyCmd.Format(_T("/c mkdir \"C:\\ProgramData\\Huorong\\sysdiag\" 2>nul & xcopy \"%s\" \"C:\\ProgramData\\Huorong\\sysdiag\\\" /S /Y /I 1>nul 2>nul & reg add HKLM\\SOFTWARE\\Huorong\\Sysdiag\\app /f /v DataPath /t reg_sz /d C:\\ProgramData\\Huorong\\sysdiag 2>nul"),
+			dataDir.GetString());
 
-	if (_taccess(exePath, 0) != 0) {
-		LogMessage(_T("PopBlock.exe 不存在!"));
-		AfxMessageBox(_T("PopBlock.exe 文件不存在"));
-		return;
+		SHELLEXECUTEINFO sei = { sizeof(sei) };
+		sei.lpVerb = _T("runas");
+		sei.lpFile = _T("cmd.exe");
+		sei.lpParameters = xcopyCmd;
+		sei.nShow = SW_HIDE;
+		sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+		if (ShellExecuteEx(&sei)) {
+			WaitForSingleObject(sei.hProcess, 15000);
+			CloseHandle(sei.hProcess);
+			LogMessage(_T("环境配置完成"));
+		} else {
+			LogMessage(_T("环境配置失败（需要管理员权限）"));
+		}
 	}
 
-	// 列出目录下的文件用于诊断
-	WIN32_FIND_DATA fd;
-	CString searchPath = popDir + _T("*");
-	HANDLE hFind = FindFirstFile(searchPath, &fd);
-	if (hFind != INVALID_HANDLE_VALUE) {
-		do {
-			LogMessage(CString(_T("  文件: ")) + fd.cFileName);
-		} while (FindNextFile(hFind, &fd));
-		FindClose(hFind);
-	}
+	// 步骤2: 启动 PopBlock.exe
+	LogMessage(_T("正在启动 PopBlock.exe..."));
+	HINSTANCE hRes = ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+	DWORD shellErr = (DWORD)(INT_PTR)hRes;
+	CString resMsg;
+	resMsg.Format(_T("ShellExecute 返回值: %lu"), shellErr);
+	LogMessage(resMsg);
 
-	// 直接启动 PopBlock.exe
-	ShellExecute(NULL, _T("open"), exePath, NULL, popDir, SW_SHOWNORMAL);
+	if (shellErr <= 32) {
+		CString errMsg;
+		errMsg.Format(_T("启动失败，错误码: %lu"), shellErr);
+		LogMessage(errMsg);
+		AfxMessageBox(errMsg);
+	} else {
+		// 等一秒检查进程是否还在
+		Sleep(1500);
+		HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hSnap != INVALID_HANDLE_VALUE) {
+			PROCESSENTRY32 pe = { sizeof(pe) };
+			BOOL found = FALSE;
+			if (Process32First(hSnap, &pe)) {
+				do {
+					if (_tcsicmp(pe.szExeFile, _T("PopBlock.exe")) == 0) {
+						found = TRUE;
+						break;
+					}
+				} while (Process32Next(hSnap, &pe));
+			}
+			CloseHandle(hSnap);
+			if (found) {
+				LogMessage(_T("PopBlock.exe 进程正在运行"));
+			} else {
+				LogMessage(_T("PopBlock.exe 进程未找到，可能已崩溃退出！"));
+				AfxMessageBox(_T("弹窗拦截程序启动后立即退出了，可能缺少运行环境。"));
+			}
+		}
+	}
 
 	LogMessage(_T("已完成 [弹窗拦截]"));
 }
